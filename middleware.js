@@ -24,7 +24,7 @@ export async function middleware(request) {
   const { data: { user } } = await supabase.auth.getUser()
   const path = request.nextUrl.pathname
 
-  if (!user && (path.startsWith('/cont') || path.startsWith('/admin'))) {
+  if (!user && (path.startsWith('/cont') || path.startsWith('/magazin') || path.startsWith('/admin'))) {
     const url = request.nextUrl.clone()
     url.pathname = '/autentificare'
     url.search = ''

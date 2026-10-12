@@ -10,7 +10,9 @@ export const dynamic = 'force-dynamic'
 
 function calc(groups, cancelled, from, to) {
   const rows = groups.map((g) => {
-    const dates = datesOfWeekday(g.weekday, from, to)
+    const dates = g.trial_date
+      ? (g.trial_date >= from && g.trial_date <= to ? [g.trial_date] : [])
+      : datesOfWeekday(g.weekday, from, to)
     const held = dates.filter((d) => !cancelled.has(`${g.id}|${d}`))
     const kids = g.enrollments?.[0]?.count || 0
     return {

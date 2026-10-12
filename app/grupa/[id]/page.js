@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import SpotsBar from '@/components/SpotsBar'
-import { slot, lei } from '@/lib/dates'
+import GroupMeta from '@/components/GroupMeta'
+import { slot, priceLabel, notExpired } from '@/lib/dates'
 import { enrollExisting, enrollNewChild } from './actions'
 
 export const dynamic = 'force-dynamic'
@@ -24,7 +25,7 @@ export default async function Grupa({ params, searchParams }) {
 
   const taken = Number((spots || []).find((s) => s.group_id === g.id)?.taken || 0)
   const free = g.capacity - taken
-  const canEnroll = g.is_open && free > 0
+  const canEnroll = g.is_open && free > 0 && notExpired(g)
 
   let children = []
   if (user) {
@@ -42,9 +43,10 @@ export default async function Grupa({ params, searchParams }) {
       <p><Link href="/#grupe">← Toate grupele</Link></p>
 
       <article className="card wide group-detail">
+        <GroupMeta g={g} />
         <p className="when">{slot(g)}</p>
         <h1 className="page-title">{g.name}</h1>
-        <p className="muted">{lei(g.price)} pe lecție</p>
+        <p className="muted">{priceLabel(g)}</p>
         <SpotsBar taken={taken} capacity={g.capacity} open={g.is_open} />
         <p className={canEnroll ? 'tag good' : 'tag'}>
           {!g.is_open ? 'Înscrieri închise' : free <= 0 ? 'Grupă plină' : free === 1 ? 'Un singur loc liber' : `${free} locuri libere`}

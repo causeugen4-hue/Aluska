@@ -1,8 +1,9 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import ConfirmButton from '@/components/ConfirmButton'
 import { addChild, deleteChild, enroll, unenroll, saveProfile } from './actions'
-import { slot, lei, age, today, fmtDate } from '@/lib/dates'
+import { slot, priceLabel, age, today, fmtDate, notExpired } from '@/lib/dates'
 
 export const metadata = { title: 'Contul meu – Alușka Art Studio' }
 export const dynamic = 'force-dynamic'
@@ -13,13 +14,14 @@ export default async function Cont({ searchParams }) {
   const { data: { user } } = await sb.auth.getUser()
   if (!user) redirect('/autentificare')
 
-  const [{ data: profile }, { data: children }, { data: groups }, { data: spots }, { data: closed }] =
+  const [{ data: profile }, { data: children }, { data: groups }, { data: spots }, { data: closed }, { data: stars }] =
     await Promise.all([
       sb.from('profiles').select('full_name,phone').eq('id', user.id).single(),
       sb.from('children').select('id,name,birth_date,notes,enrollments(id,group_id)').eq('parent_id', user.id).order('created_at'),
       sb.from('groups').select('*').order('weekday').order('start_time'),
       sb.rpc('group_spots'),
       sb.from('cancelled_lessons').select('group_id,lesson_date').gte('lesson_date', today()).order('lesson_date'),
+      sb.rpc('my_stars'),
     ])
 
   const taken = Object.fromEntries((spots || []).map((s) => [s.group_id, Number(s.taken)]))
@@ -33,6 +35,14 @@ export default async function Cont({ searchParams }) {
       {sp.ok && <p className="alert ok" role="status">{sp.ok}</p>}
       {sp.eroare && <p className="alert err" role="alert">{sp.eroare}</p>}
 
+      <section className="card stars-card">
+        <div>
+          <p className="stars-big"><span className="star">★</span> {stars ?? 0} {stars === 1 ? 'steluță' : 'steluțe'}</p>
+          <p className="muted">Primești 5 steluțe pentru fiecare lecție la care copilul a fost prezent.</p>
+        </div>
+        <Link href="/magazin" className="btn small">Spre magazin</Link>
+      </section>
+
       <h2>Copiii mei</h2>
       {!children?.length && (
         <p className="empty">Nu ai adăugat încă niciun copil. Completează formularul de mai jos.</p>
@@ -41,7 +51,7 @@ export default async function Cont({ searchParams }) {
       <div className="stack">
         {(children || []).map((c) => {
           const enrolledIds = new Set(c.enrollments.map((e) => e.group_id))
-          const options = (groups || []).filter((g) => g.is_open && !enrolledIds.has(g.id) && free(g) > 0)
+          const options = (groups || []).filter((g) => g.is_open && notExpired(g) && !enrolledIds.has(g.id) && free(g) > 0)
           return (
             <article className="card wide" key={c.id}>
               <div className="card-head">
@@ -68,7 +78,7 @@ export default async function Cont({ searchParams }) {
                     <li key={e.id} className="enr">
                       <div>
                         <strong>{g.name}</strong>
-                        <div className="muted">{slot(g)}, {lei(g.price)} pe lecție</div>
+                        <div className="muted">{slot(g)}, {priceLabel(g)}</div>
                         {off.length > 0 && (
                           <div className="note">Lecție anulată: {off.map((x) => fmtDate(x.lesson_date)).join(', ')}</div>
                         )}

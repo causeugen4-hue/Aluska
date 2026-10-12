@@ -33,3 +33,11 @@ După autentificare vei vedea „Administrare” în meniu.
 - **Bani:** venit pe săptămână și pe lună (lecții ținute × copii × preț), cu navigare între perioade.
 - **Înscrieri:** editezi numele, data nașterii și grupa copilului, ștergi înscrieri.
 - **Grupe și lecții:** adaugi/editezi/ștergi grupe, închizi înscrierile la o grupă, închizi o lecție anume (nu intră în calculul banilor).
+
+## Pasul 2 (galerie, probe, vârste, steluțe, magazin)
+Rulează o singură dată `supabase/migration-2.sql` în Supabase → SQL Editor. Apoi fă deploy.
+
+- **Galerie:** Administrare → Galerie, încarci poze; apar în carusel pe pagina principală.
+- **Grupe:** ai categoria de vârstă (4–7 sau 8–12) și bifa „Lecție de probă” (130 lei, o singură dată, cu dată anume).
+- **Prezență:** Administrare → Prezență; bifezi copiii prezenți, părintele primește 5 steluțe pentru fiecare.
+- **Magazin:** Administrare → Magazin; adaugi produse cu preț în steluțe, vezi comenzile, le marchezi predate sau le anulezi (steluțele se returnează).

@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import ConfirmButton from '@/components/ConfirmButton'
 import { saveGroup, deleteGroup, toggleLesson } from '../actions'
-import { ZILE, hm, today, addDays, datesOfWeekday, fmtDateLong } from '@/lib/dates'
+import { ZILE, hm, today, addDays, datesOfWeekday, fmtDateLong, TRIAL_PRICE } from '@/lib/dates'
 
 export const metadata = { title: 'Grupe și lecții – Administrare' }
 export const dynamic = 'force-dynamic'
@@ -11,6 +11,12 @@ function GroupFields({ g }) {
     <>
       {g && <input type="hidden" name="id" value={g.id} />}
       <label>Numele grupei<input name="name" defaultValue={g?.name || ''} required /></label>
+      <label>Categoria de vârstă
+        <select name="age_group" defaultValue={g?.age_group || '4-7'}>
+          <option value="4-7">4–7 ani</option>
+          <option value="8-12">8–12 ani</option>
+        </select>
+      </label>
       <label>Ziua
         <select name="weekday" defaultValue={g?.weekday || 1}>
           {[1, 2, 3, 4, 5, 6, 7].map((d) => <option key={d} value={d}>{ZILE[d]}</option>)}
@@ -18,10 +24,16 @@ function GroupFields({ g }) {
       </label>
       <label>De la<input type="time" name="start_time" defaultValue={hm(g?.start_time) || '17:00'} required /></label>
       <label>Până la<input type="time" name="end_time" defaultValue={hm(g?.end_time) || '18:30'} required /></label>
-      <label>Preț pe lecție (lei)<input type="number" name="price" min="0" step="0.01" defaultValue={g?.price ?? ''} required /></label>
+      <label>Preț pe lecție (lei)<input type="number" name="price" min="0" step="0.01" defaultValue={g?.price ?? ''} /></label>
       <label>Locuri<input type="number" name="capacity" min="1" defaultValue={g?.capacity ?? 8} required /></label>
       <label className="check">
         <input type="checkbox" name="is_open" defaultChecked={g ? g.is_open : true} /> Înscrieri deschise
+      </label>
+      <label className="check">
+        <input type="checkbox" name="is_trial" defaultChecked={!!g?.trial_date} /> Lecție de probă ({TRIAL_PRICE} lei, o singură dată)
+      </label>
+      <label>Data lecției de probă <small>(doar pentru lecția de probă; ziua și prețul se iau automat)</small>
+        <input type="date" name="trial_date" defaultValue={g?.trial_date || ''} />
       </label>
     </>
   )
@@ -49,7 +61,9 @@ export default async function Grupe({ searchParams }) {
       </details>
 
       {(groups || []).map((g) => {
-        const next = datesOfWeekday(g.weekday, t, addDays(t, 27))
+        const next = g.trial_date
+          ? (g.trial_date >= t ? [g.trial_date] : [])
+          : datesOfWeekday(g.weekday, t, addDays(t, 27))
         return (
           <section key={g.id} className="block">
             <form action={saveGroup} className="form grid-form">

@@ -21,6 +21,7 @@ export default async function Header() {
         <Link href="/#grupe">Grupe</Link>
         {user ? (
           <>
+            <Link href="/magazin">Magazin</Link>
             {isAdmin && <Link href="/admin">Administrare</Link>}
             <Link href="/cont">Contul meu</Link>
             <form action={logout}><button className="linklike">Ieși</button></form>
