@@ -47,7 +47,7 @@ a { color: var(--cobalt); }
 .contact-list { display: flex; justify-content: center; gap: .8rem; list-style: none; margin: 0; padding: 0; }
 .contact-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--ink); background: var(--white); color: var(--ink); transition: background .15s, color .15s; }
 .contact-icon:hover { background: var(--cobalt); color: #fff; }
-.brand-logo { height: 44px; width: auto; display: block; }
+.brand-logo { height: 48px; width: 48px; display: block; border-radius: 50%; border: 2px solid var(--ink); }
 .hero-logo { width: min(400px, 80vw); height: auto; justify-self: center; }
 
 /* Layout */
