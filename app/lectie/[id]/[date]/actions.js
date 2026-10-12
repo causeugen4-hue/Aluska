@@ -1,6 +1,7 @@
 'use server'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { withUsage } from '@/lib/subscriptions'
 
 export async function enrollInLesson(fd) {
   const groupId = String(fd.get('group_id'))
@@ -11,6 +12,22 @@ export async function enrollInLesson(fd) {
   const { data: { user } } = await sb.auth.getUser()
   if (!user) redirect('/autentificare')
   if (!/^\d{4}-\d{2}-\d{2}$/.test(lessonDate)) redirect('/')
+
+  // Plata cu abonament: alegem primul abonament al părintelui care mai are lecții
+  const pay = String(fd.get('pay') || '')
+  let subscriptionId = null
+  let leftAfter = 0
+  if (pay === 'sub') {
+    const [{ data: subs }, { data: usage }] = await Promise.all([
+      sb.from('subscriptions').select('id,total_lessons,created_at').eq('parent_id', user.id).order('created_at'),
+      sb.rpc('subscription_usage'),
+    ])
+    const list = withUsage(subs, usage)
+    const pick = list.find((s) => s.remaining > 0)
+    if (!pick) back('Abonamentul nu mai are lecții disponibile.')
+    subscriptionId = pick.id
+    leftAfter = list.reduce((a, s) => a + s.remaining, 0) - 1
+  }
 
   let childId = String(fd.get('child_id') || '')
   if (childId === 'new') {
@@ -32,12 +49,19 @@ export async function enrollInLesson(fd) {
     child_id: childId,
     group_id: groupId,
     lesson_date: lessonDate,
-    is_trial: fd.get('is_trial') === 'on',
+    is_trial: pay !== 'sub' && (fd.get('is_trial') === 'on' || pay === 'trial'),
+    subscription_id: subscriptionId,
   })
   if (error) {
     if (error.code === '23505') back('Copilul este deja înscris la această lecție.')
     if (error.code === 'P0001' && error.message) back(error.message)
     back('Nu am putut face înscrierea. Încearcă din nou.')
+  }
+  if (subscriptionId) {
+    const msg = leftAfter <= 0
+      ? 'Înscrierea a fost făcută. Ai folosit ultima lecție din abonament, reînnoiește-l mai jos.'
+      : `Înscrierea a fost făcută. Mai ai ${leftAfter} ${leftAfter === 1 ? 'lecție' : 'lecții'} în abonament.`
+    redirect(`/cont?ok=${encodeURIComponent(msg)}`)
   }
   redirect(`/cont?ok=${encodeURIComponent('Înscrierea a fost făcută. Poți alege și altă lecție, dacă vrei.')}`)
 }

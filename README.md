@@ -54,3 +54,12 @@ O „grupă” din Administrare este o lecție care se repetă în fiecare săpt
 
 ## Lecția de probă
 Nu e un tip separat de lecție, ci o reducere pentru părinte: la prima lecție a copilului, părintele bifează „Lecție de probă” la înscriere și achită 130 lei în loc de prețul grupei, doar el, nu toți copiii din acea zi. Rulează `supabase/migration-4.sql`. În Administrare → Prezență vezi pentru fiecare copil suma de achitat, iar în „Bani” lecția de probă se numără cu 130 lei.
+
+## Pasul 5 (abonamente cu cod)
+Rulează o singură dată `supabase/migration-5.sql` în Supabase → SQL Editor (după migration-4). Apoi fă deploy.
+
+- **Administrare → Abonamente:** creezi un abonament (număr de lecții, cod scris de tine sau generat automat, notiță). Poți mări numărul de lecții pentru reînnoire sau șterge abonamentul.
+- **Contul meu (părinte):** secțiunea „Abonament”, unde părintele scrie codul. Vede câte lecții mai are.
+- **Înscriere:** dacă părintele are lecții în abonament, poate alege „Cu abonamentul”. Fiecare înscriere scade o lecție; dacă anulează înscrierea, lecția se întoarce, iar dacă închizi o lecție din Administrare, se returnează și ea.
+- La ultima lecție i se spune că aceasta este ultima, iar când abonamentul se termină apare mesajul de reînnoire (cu telefonul și Instagramul din `lib/contact.js`).
+- **Bani:** lecțiile plătite cu abonament nu se numără la venitul lecției, fiindcă sunt achitate în avans.

@@ -3,7 +3,9 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { currentUserId } from '@/lib/auth'
 import ConfirmButton from '@/components/ConfirmButton'
-import { addChild, deleteChild, unenroll, saveProfile } from './actions'
+import RenewBox from '@/components/RenewBox'
+import { withUsage, lessonsWord } from '@/lib/subscriptions'
+import { addChild, deleteChild, unenroll, saveProfile, addSubscription } from './actions'
 import { enrollmentPriceLabel, age, today, fmtDay, hm, cap } from '@/lib/dates'
 
 export const metadata = { title: 'Contul meu – Alușka Art Studio' }
@@ -16,18 +18,22 @@ export default async function Cont({ searchParams }) {
   const sb = await createClient()
   const t = today()
 
-  const [{ data: profile }, { data: children }, { data: groups }, { data: closed }, { data: stars }] =
+  const [{ data: profile }, { data: children }, { data: groups }, { data: closed }, { data: stars }, { data: subsRaw }, { data: usage }] =
     await Promise.all([
       sb.from('profiles').select('full_name,phone').eq('id', uid).maybeSingle(),
-      sb.from('children').select('id,name,birth_date,notes,enrollments(id,group_id,lesson_date,is_trial)').eq('parent_id', uid).order('created_at'),
+      sb.from('children').select('id,name,birth_date,notes,enrollments(id,group_id,lesson_date,is_trial,subscription_id)').eq('parent_id', uid).order('created_at'),
       sb.from('groups').select('*'),
       sb.from('cancelled_lessons').select('group_id,lesson_date').gte('lesson_date', t),
       sb.rpc('my_stars'),
+      sb.from('subscriptions').select('id,code,total_lessons,created_at').eq('parent_id', uid).order('created_at'),
+      sb.rpc('subscription_usage'),
     ])
 
   const byId = Object.fromEntries((groups || []).map((g) => [g.id, g]))
   const closedSet = new Set((closed || []).map((x) => `${x.group_id}|${x.lesson_date}`))
   const n = typeof stars === 'number' ? stars : 0
+  const subs = withUsage(subsRaw, usage)
+  const subLeft = subs.reduce((a, x) => a + x.remaining, 0)
 
   return (
     <main className="wrap">
@@ -43,6 +49,32 @@ export default async function Cont({ searchParams }) {
         </div>
         <Link href="/magazin" className="btn small">Spre magazin</Link>
       </section>
+
+      <h2>Abonament</h2>
+      {!subs.length && <p className="muted">Ai un abonament? Scrie codul primit și lecțiile se vor scădea automat când înscrii copilul.</p>}
+      <div className="stack">
+        {subs.map((s) => {
+          const pct = Math.round((s.remaining / s.total_lessons) * 100)
+          const level = s.remaining === 0 ? 'full' : s.remaining <= 2 ? 'high' : 'ok'
+          return (
+            <article className="card sub-card" key={s.id}>
+              <p className="sub-left">
+                {s.remaining === 0 ? 'Abonament epuizat' : `${lessonsWord(s.remaining)} rămase`}
+                <small> din {s.total_lessons}</small>
+              </p>
+              <div className={`bar ${level}`} role="progressbar" aria-valuemin={0} aria-valuemax={s.total_lessons} aria-valuenow={s.remaining} aria-label="Lecții rămase">
+                <span style={{ width: `${pct}%` }} />
+              </div>
+              <p className="muted">Cod: <span className="code">{s.code}</span></p>
+            </article>
+          )
+        })}
+      </div>
+      {subs.length > 0 && subLeft === 0 && <RenewBox />}
+      <form action={addSubscription} className="form card sub-form">
+        <label>Cod abonament<input name="code" autoComplete="off" autoCapitalize="characters" spellCheck="false" required /></label>
+        <button className="btn ghost">Adaugă abonament</button>
+      </form>
 
       <h2>Copiii mei</h2>
       {!children?.length && (

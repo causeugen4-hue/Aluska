@@ -48,3 +48,13 @@ export async function saveProfile(fd) {
   if (error) back('Nu am putut salva datele.')
   back('Datele au fost salvate.', 'ok')
 }
+
+export async function addSubscription(fd) {
+  const { sb } = await ctx()
+  const code = String(fd.get('code') || '').trim()
+  if (!code) back('Scrie codul abonamentului.')
+  const { data, error } = await sb.rpc('redeem_subscription', { p_code: code })
+  if (error) back(error.code === 'P0001' && error.message ? error.message : 'Nu am putut adăuga abonamentul. Încearcă din nou.')
+  const n = Number(data) || 0
+  back(`Abonamentul a fost adăugat. Ai ${n} ${n === 1 ? 'lecție' : 'lecții'} disponibile.`, 'ok')
+}

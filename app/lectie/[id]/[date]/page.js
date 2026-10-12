@@ -6,6 +6,7 @@ import SpotsBar from '@/components/SpotsBar'
 import GroupMeta from '@/components/GroupMeta'
 import EnrollForm from '@/components/EnrollForm'
 import { hm, priceLabel, fmtDay, cap, isLessonDate, hasStarted } from '@/lib/dates'
+import { withUsage } from '@/lib/subscriptions'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,13 +21,15 @@ export default async function Lectie({ params, searchParams }) {
   const sb = await createClient()
   const uid = await currentUserId()
 
-  const [{ data: g }, { data: spots }, { data: cl }, { data: kidsRaw }] = await Promise.all([
+  const [{ data: g }, { data: spots }, { data: cl }, { data: kidsRaw }, { data: subsRaw }, { data: usage }] = await Promise.all([
     sb.from('groups').select('*').eq('id', id).maybeSingle(),
     sb.rpc('group_spots'),
     sb.from('cancelled_lessons').select('group_id').eq('group_id', id).eq('lesson_date', date),
     uid
       ? sb.from('children').select('id,name,enrollments(group_id,lesson_date)').eq('parent_id', uid).order('created_at')
       : Promise.resolve({ data: [] }),
+    uid ? sb.from('subscriptions').select('id,total_lessons').eq('parent_id', uid) : Promise.resolve({ data: [] }),
+    uid ? sb.rpc('subscription_usage') : Promise.resolve({ data: [] }),
   ])
   if (!g || !isLessonDate(g, date)) notFound()
 
@@ -41,6 +44,9 @@ export default async function Lectie({ params, searchParams }) {
     : started ? 'Lecția aceasta a avut deja loc sau a început.'
     : free <= 0 ? 'Lecția este plină. Alege o altă lecție.'
     : null
+
+  const subRemaining = withUsage(subsRaw, usage).reduce((a, x) => a + x.remaining, 0)
+  const lessonLabel = `${cap(fmtDay(date))}, ${hm(g.start_time)}–${hm(g.end_time)}`
 
   const kids = (kidsRaw || []).map((c) => ({
     id: c.id,
@@ -70,7 +76,7 @@ export default async function Lectie({ params, searchParams }) {
       {canEnroll && uid && (
         <section>
           <h2>Înscrie copilul</h2>
-          <EnrollForm groupId={g.id} lessonDate={date} price={g.price} kids={kids} />
+          <EnrollForm groupId={g.id} lessonDate={date} lessonLabel={lessonLabel} price={g.price} kids={kids} subRemaining={subRemaining} />
         </section>
       )}
 

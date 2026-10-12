@@ -13,17 +13,18 @@ function calc(groups, enr, cancelled, from, to) {
     const per = {}
     for (const e of enr) {
       if (e.group_id === g.id && e.lesson_date >= from && e.lesson_date <= to) {
-        const x = per[e.lesson_date] || (per[e.lesson_date] = { n: 0, trial: 0 })
+        const x = per[e.lesson_date] || (per[e.lesson_date] = { n: 0, trial: 0, sub: 0 })
         x.n++
         if (e.is_trial) x.trial++
+        else if (e.subscription_id) x.sub++
       }
     }
-    let held = 0, closed = 0, kids = 0, trials = 0
+    let held = 0, closed = 0, kids = 0, trials = 0, subs = 0
     for (const [d, x] of Object.entries(per)) {
       if (cancelled.has(`${g.id}|${d}`)) closed++
-      else { held++; kids += x.n; trials += x.trial }
+      else { held++; kids += x.n; trials += x.trial; subs += x.sub }
     }
-    return { g, kids, trials, held, closed, income: (kids - trials) * Number(g.price) + trials * TRIAL_PRICE }
+    return { g, kids, trials, subs, held, closed, income: (kids - trials - subs) * Number(g.price) + trials * TRIAL_PRICE }
   }).filter((r) => r.held + r.closed > 0)
   return { rows, total: rows.reduce((s, r) => s + r.income, 0) }
 }
@@ -41,7 +42,8 @@ function Table({ data }) {
             <tr key={r.g.id}>
               <td>{r.g.name}<div className="muted">{ZILE[r.g.weekday]}</div></td>
               <td>{r.held}{r.closed > 0 && <div className="note">{r.closed} închise</div>}</td>
-              <td>{r.kids}{r.trials > 0 && <div className="muted">din care {r.trials} de probă</div>}</td>
+              <td>{r.kids}{r.trials > 0 && <div className="muted">din care {r.trials} de probă</div>}
+                {r.subs > 0 && <div className="muted">din care {r.subs} cu abonament</div>}</td>
               <td>{lei(r.g.price)}</td>
               <td><strong>{lei(r.income)}</strong></td>
             </tr>
@@ -66,7 +68,7 @@ export default async function Bani({ searchParams }) {
   const [{ data: groups }, { data: cl }, { data: enr }] = await Promise.all([
     sb.from('groups').select('*'),
     sb.from('cancelled_lessons').select('group_id,lesson_date'),
-    sb.from('enrollments').select('group_id,lesson_date,is_trial').gte('lesson_date', lo).lte('lesson_date', hi).limit(5000),
+    sb.from('enrollments').select('group_id,lesson_date,is_trial,subscription_id').gte('lesson_date', lo).lte('lesson_date', hi).limit(5000),
   ])
   const cancelled = new Set((cl || []).map((c) => `${c.group_id}|${c.lesson_date}`))
 
@@ -79,7 +81,7 @@ export default async function Bani({ searchParams }) {
       <h1>Bani</h1>
       <p className="muted">
         Venitul se calculează din înscrierile la fiecare lecție: numărul de copii × prețul lecției (lecția de probă se numără cu {lei(TRIAL_PRICE)}).
-        Lecțiile închise nu se numără.
+        Lecțiile închise nu se numără. Lecțiile plătite cu abonament nu se numără aici, fiindcă sunt achitate în avans.
       </p>
 
       <section className="money">

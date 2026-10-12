@@ -1,6 +1,7 @@
 'use server'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { randomInt } from 'node:crypto'
 import { today } from '@/lib/dates'
 
 async function adminCtx() {
@@ -184,4 +185,48 @@ export async function cancelOrder(fd) {
   const { error } = await sb.rpc('cancel_order', { p_order: fd.get('id') })
   if (error) go('/admin/magazin', error.message || 'Nu am putut anula comanda.', 'eroare')
   go('/admin/magazin', 'Comanda a fost anulată, steluțele au fost returnate.')
+}
+
+// ---------- Abonamente ----------
+const normCode = (v) => String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '')
+const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+const genCode = () => Array.from({ length: 8 }, () => ALPHABET[randomInt(ALPHABET.length)]).join('')
+const SUBS = '/admin/abonamente'
+
+export async function createSubscription(fd) {
+  const sb = await adminCtx()
+  const total = Math.floor(Number(fd.get('total_lessons')))
+  if (!(total >= 1 && total <= 200)) go(SUBS, 'Scrie câte lecții are abonamentul (1–200).', 'eroare')
+  const note = String(fd.get('note') || '').trim()
+  let code = normCode(fd.get('code'))
+  const custom = code.length > 0
+  if (custom && code.length < 4) go(SUBS, 'Codul trebuie să aibă cel puțin 4 litere sau cifre.', 'eroare')
+
+  for (let i = 0; i < 5; i++) {
+    if (!custom) code = genCode()
+    const { error } = await sb.from('subscriptions').insert({ code, total_lessons: total, note })
+    if (!error) go(SUBS, `Abonamentul a fost creat. Codul este: ${code}`)
+    if (error.code !== '23505') go(SUBS, 'Nu am putut crea abonamentul.', 'eroare')
+    if (custom) go(SUBS, 'Codul acesta există deja. Alege altul.', 'eroare')
+  }
+  go(SUBS, 'Nu am putut genera un cod. Încearcă din nou.', 'eroare')
+}
+
+export async function updateSubscription(fd) {
+  const sb = await adminCtx()
+  const total = Math.floor(Number(fd.get('total_lessons')))
+  if (!(total >= 1 && total <= 200)) go(SUBS, 'Numărul de lecții trebuie să fie între 1 și 200.', 'eroare')
+  const { error } = await sb.from('subscriptions').update({
+    total_lessons: total,
+    note: String(fd.get('note') || '').trim(),
+  }).eq('id', fd.get('id'))
+  if (error) go(SUBS, 'Nu am putut salva abonamentul.', 'eroare')
+  go(SUBS, 'Abonamentul a fost salvat.')
+}
+
+export async function deleteSubscription(fd) {
+  const sb = await adminCtx()
+  const { error } = await sb.from('subscriptions').delete().eq('id', fd.get('id'))
+  if (error) go(SUBS, 'Nu am putut șterge abonamentul.', 'eroare')
+  go(SUBS, 'Abonamentul a fost șters.')
 }

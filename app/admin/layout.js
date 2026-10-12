@@ -17,6 +17,7 @@ export default async function AdminLayout({ children }) {
         <Link href="/admin/inscrieri">Înscrieri</Link>
         <Link href="/admin/grupe">Grupe și lecții</Link>
         <Link href="/admin/prezenta">Prezență</Link>
+        <Link href="/admin/abonamente">Abonamente</Link>
         <Link href="/admin/galerie">Galerie</Link>
         <Link href="/admin/magazin">Magazin</Link>
       </nav>

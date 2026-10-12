@@ -1,5 +1,15 @@
 import LessonCard from '@/components/LessonCard'
-import { fmtDate } from '@/lib/dates'
+import { fmtDate, fmtDay, cap } from '@/lib/dates'
+
+// Grupează lecțiile pe zile, ca fiecare zi să fie un bloc separat
+function byDay(list) {
+  const days = new Map()
+  for (const x of list) {
+    if (!days.has(x.date)) days.set(x.date, [])
+    days.get(x.date).push(x)
+  }
+  return [...days]
+}
 
 export default function Weeks({ thisWeek, nextWeek, range, loggedIn }) {
   const blocks = [
@@ -18,9 +28,14 @@ export default function Weeks({ thisWeek, nextWeek, range, loggedIn }) {
                 {loggedIn ? 'Nu mai sunt lecții cu locuri libere în această săptămână.' : 'Nu sunt lecții programate în această săptămână.'}
               </p>
             )}
-            <div className="grid">
-              {list.map((x) => <LessonCard key={`${x.g.id}|${x.date}`} {...x} loggedIn={loggedIn} />)}
-            </div>
+            {byDay(list).map(([date, items]) => (
+              <section key={date} className="day" aria-labelledby={`day-${date}`}>
+                <h3 id={`day-${date}`} className="day-title">{cap(fmtDay(date))}</h3>
+                <div className="grid">
+                  {items.map((x) => <LessonCard key={`${x.g.id}|${x.date}`} {...x} loggedIn={loggedIn} />)}
+                </div>
+              </section>
+            ))}
           </div>
         )
       })}

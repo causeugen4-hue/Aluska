@@ -47,8 +47,8 @@ a { color: var(--cobalt); }
 .contact-list { display: flex; justify-content: center; gap: .8rem; list-style: none; margin: 0; padding: 0; }
 .contact-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--ink); background: var(--white); color: var(--ink); transition: background .15s, color .15s; }
 .contact-icon:hover { background: var(--cobalt); color: #fff; }
-.brand-logo { height: 48px; width: 48px; display: block; border-radius: 50%; border: 2px solid var(--ink); }
-.hero-logo { width: min(400px, 80vw); height: auto; justify-self: center; }
+.brand-logo { flex: 0 0 48px; width: 48px; height: 48px; min-width: 48px; aspect-ratio: 1 / 1; object-fit: cover; display: block; border-radius: 50%; border: 2px solid var(--ink); background: var(--paper); }
+.hero-logo { width: min(400px, 80vw); height: auto; aspect-ratio: 1 / 1; object-fit: contain; justify-self: center; }
 
 /* Layout */
 main { min-height: 60vh; }
@@ -233,3 +233,31 @@ tr:last-child td { border-bottom: 0; }
 .trial-opt { align-items: flex-start; padding: .7rem .9rem; border: 2px dashed var(--ink); border-radius: 14px; background: #FFF8E1; }
 .trial-opt input { margin-top: .2rem; flex: 0 0 auto; }
 .trial-opt small { display: block; font-weight: 400; color: var(--muted); }
+
+/* Zile separate în lista lecțiilor */
+.week { margin-bottom: 2rem; }
+.day { margin: 1.1rem 0 0; padding: 1rem 1rem 1.2rem; border: 2px solid var(--ink); border-left-width: 12px; border-radius: 22px; background: #EEF0FB; }
+.week .day:nth-of-type(4n + 1) { border-left-color: var(--rose); }
+.week .day:nth-of-type(4n + 2) { border-left-color: var(--sun); }
+.week .day:nth-of-type(4n + 3) { border-left-color: var(--mint); }
+.week .day:nth-of-type(4n + 4) { border-left-color: var(--cobalt); }
+.day-title { margin: 0 0 .8rem; font-size: 1.25rem; }
+.confirm-day { margin: 0; padding: .7rem 1rem; border: 2px solid var(--ink); border-radius: 12px; background: #FFF6D6; }
+
+/* Plata lecției și abonamente */
+.pay-opts { border: 0; padding: 0; margin: 0; display: grid; gap: .6rem; min-width: 0; }
+.pay-opts legend { font-weight: 800; margin-bottom: .4rem; padding: 0; }
+.pay-opt { display: flex; align-items: flex-start; gap: .6rem; padding: .7rem .9rem; border: 2px solid var(--line); border-radius: 14px; background: #fff; cursor: pointer; }
+.pay-opt:has(input:checked) { border-color: var(--ink); background: #EEF0FF; }
+.pay-opt input { width: 1.2rem; height: 1.2rem; margin: .15rem 0 0; flex: none; }
+.pay-opt small { display: block; font-weight: 400; color: var(--muted); }
+.pay-opt small.last-lesson { color: var(--danger); font-weight: 700; }
+.sub-card { max-width: 520px; }
+.sub-card .bar { margin: .5rem 0; }
+.sub-left { font: 800 1.4rem var(--font-head), sans-serif; margin: 0 !important; }
+.sub-left small { font-weight: 500; color: var(--muted); font-size: .95rem; }
+.sub-form { margin-top: 1rem; }
+.code { font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 700; letter-spacing: .08em; }
+.big-code { font-size: 1.4rem; margin: 0 !important; }
+.renew { max-width: 520px; margin: 1rem 0; padding: 1rem 1.2rem; border: 2px solid var(--rose); border-radius: 16px; background: #FDECF1; }
+.renew p { margin: .2rem 0 .6rem; }

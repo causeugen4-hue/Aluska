@@ -12,7 +12,7 @@ export default async function Inscrieri({ searchParams }) {
   const [{ data: groups }, { data: rows }] = await Promise.all([
     sb.from('groups').select('*').order('weekday').order('start_time'),
     sb.from('enrollments')
-      .select('id,group_id,lesson_date,is_trial,child:children(id,name,birth_date,parent:profiles(full_name,phone,email))')
+      .select('id,group_id,lesson_date,is_trial,subscription_id,child:children(id,name,birth_date,parent:profiles(full_name,phone,email))')
       .gte('lesson_date', today())
       .order('lesson_date')
       .order('created_at'),
@@ -43,6 +43,7 @@ export default async function Inscrieri({ searchParams }) {
                         <strong>{r.child.name}</strong>
                         <span className="muted">{age(r.child.birth_date)}</span>
                         {r.is_trial && <span className="chip trial">Probă, {lei(TRIAL_PRICE)}</span>}
+                        {r.subscription_id && <span className="chip">Abonament</span>}
                         <span className="muted en-parent">{r.child.parent?.full_name}</span>
                       </summary>
                       <div className="en-body">

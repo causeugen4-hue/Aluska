@@ -25,7 +25,7 @@ export default async function Prezenta({ searchParams }) {
   if (g && date) {
     const [{ data: enr }, { data: att }, { data: cl }] = await Promise.all([
       sb.from('enrollments')
-        .select('id, is_trial, child:children(id,name,parent:profiles(full_name))')
+        .select('id, is_trial, subscription_id, child:children(id,name,parent:profiles(full_name))')
         .eq('group_id', g.id).eq('lesson_date', date).order('created_at'),
       sb.from('attendance').select('child_id').eq('group_id', g.id).eq('lesson_date', date),
       sb.from('cancelled_lessons').select('group_id').eq('group_id', g.id).eq('lesson_date', date),
@@ -88,7 +88,7 @@ export default async function Prezenta({ searchParams }) {
                       <input type="checkbox" name="present" value={k.child.id} defaultChecked={present.has(k.child.id)} />
                       {k.child.name}
                     </label>
-                    <span className="muted">{k.child.parent?.full_name} · {k.is_trial ? `lecție de probă, ${lei(TRIAL_PRICE)}` : lei(g.price)}</span>
+                    <span className="muted">{k.child.parent?.full_name} · {k.is_trial ? `lecție de probă, ${lei(TRIAL_PRICE)}` : k.subscription_id ? 'abonament (nu se achită)' : lei(g.price)}</span>
                   </li>
                 ))}
               </ul>
