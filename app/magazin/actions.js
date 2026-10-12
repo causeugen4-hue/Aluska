@@ -1,5 +1,6 @@
 'use server'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 
 const back = (msg, type = 'eroare') => redirect(`/magazin?${type}=${encodeURIComponent(msg)}`)
@@ -13,5 +14,6 @@ export async function buy(fd) {
   if (error) {
     back(error.code === 'P0001' && error.message ? error.message : 'Nu am putut face comanda. Încearcă din nou.')
   }
+  revalidatePath('/', 'layout')
   back('Comanda a fost trimisă. O primești la următoarea lecție.', 'ok')
 }

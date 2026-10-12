@@ -161,10 +161,6 @@ tr:last-child td { border-bottom: 0; }
 .slide { flex: 0 0 min(440px, 85%); margin: 0; scroll-snap-align: start; border: 2px solid var(--ink); border-radius: 20px; overflow: hidden; background: var(--white); box-shadow: 4px 4px 0 var(--ink); }
 .slide img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
 .slide figcaption { padding: .5rem .9rem; font-weight: 700; font-size: .95rem; }
-.car-btn { position: absolute; top: 40%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--ink); background: var(--white); font-size: 1.8rem; line-height: 1; cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
-.car-btn.prev { left: -8px; }
-.car-btn.next { right: -8px; }
-.car-btn:hover { background: var(--sun); }
 
 /* Steluțe și magazin */
 .star { color: var(--sun); -webkit-text-stroke: 1.5px var(--ink); }
@@ -182,3 +178,44 @@ tr:last-child td { border-bottom: 0; }
 .thumb img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; }
 .thumb figcaption { font-size: .9rem; margin-top: .3rem; }
 .row.tight { margin-top: .2rem; align-items: center; }
+
+/* Steluțe în antet */
+.stars-badge { display: inline-flex; align-items: center; gap: .3rem; padding: .25rem .8rem; border: 2px solid var(--ink); border-radius: 999px; background: var(--white); font: 800 1.05rem var(--font-head), sans-serif; color: var(--ink); text-decoration: none; box-shadow: 2px 2px 0 var(--ink); }
+.stars-badge:hover { background: var(--sun); }
+.top .brand { order: 1; }
+.top.has-stars .stars-badge { order: 2; margin-left: auto; }
+.top.has-stars .nav { order: 3; flex: 1 0 100%; }
+@media (min-width: 760px) {
+  .top.has-stars .nav { order: 2; flex: 0 1 auto; margin-left: auto; }
+  .top.has-stars .stars-badge { order: 3; margin-left: 0; }
+}
+
+/* Alegerea lecției */
+.next-date { margin: .2rem 0 .4rem !important; font-size: .92rem; font-weight: 700; }
+.dates { border: 0; padding: 0; margin: 0; display: grid; gap: .6rem; min-width: 0; }
+.dates legend { font-weight: 800; margin-bottom: .4rem; padding: 0; }
+.date-opt { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: .3rem .7rem; padding: .7rem .9rem; border: 2px solid var(--line); border-radius: 14px; background: #fff; cursor: pointer; font-weight: 700; }
+.date-opt input { width: 1.2rem; height: 1.2rem; margin: 0; }
+.date-opt:has(input:checked) { border-color: var(--ink); background: #EEF0FF; }
+.date-opt.off { opacity: .55; cursor: not-allowed; }
+.date-sub { font-weight: 400; color: var(--muted); font-size: .9rem; }
+.date-opt .bar { grid-column: 2 / 4; display: block; height: 10px; }
+
+/* Încărcare */
+.skeleton { background: linear-gradient(90deg, #E9ECF8 25%, #F6F7FC 50%, #E9ECF8 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 16px; }
+.sk-title { height: 2.4rem; width: min(420px, 80%); margin-bottom: 1.2rem; }
+.sk-line { height: 1rem; margin-bottom: 1rem; }
+.sk-card { height: 150px; margin-bottom: 1rem; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
+
+/* Săptămâni */
+.week { margin-bottom: 1.5rem; }
+.week-title { margin-top: 1.2em; }
+.week-title small { font: 400 .9rem var(--font-body), sans-serif; letter-spacing: 0; color: var(--muted); margin-left: .4rem; }
+
+/* Lecție de probă */
+.trial-note { display: inline-block; margin: 0 0 .5rem; padding: .35rem .9rem; border: 2px solid var(--ink); border-radius: 999px; background: var(--sun); font-weight: 800; font-size: .95rem; }
+.trial-opt { align-items: flex-start; padding: .7rem .9rem; border: 2px dashed var(--ink); border-radius: 14px; background: #FFF8E1; }
+.trial-opt input { margin-top: .2rem; flex: 0 0 auto; }
+.trial-opt small { display: block; font-weight: 400; color: var(--muted); }

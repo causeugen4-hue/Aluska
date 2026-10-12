@@ -1,7 +1,7 @@
 'use server'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { parse, today, TRIAL_PRICE } from '@/lib/dates'
+import { today } from '@/lib/dates'
 
 async function adminCtx() {
   const sb = await createClient()
@@ -25,7 +25,9 @@ export async function updateEnrollment(fd) {
   }).eq('id', fd.get('child_id'))
   if (e1) go('/admin/inscrieri', 'Nu am putut salva datele copilului.', 'eroare')
 
-  const { error: e2 } = await sb.from('enrollments').update({ group_id: fd.get('group_id') }).eq('id', fd.get('enrollment_id'))
+  const lessonDate = String(fd.get('lesson_date') || '')
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(lessonDate)) go('/admin/inscrieri', 'Alege data lecției.', 'eroare')
+  const { error: e2 } = await sb.from('enrollments').update({ group_id: fd.get('group_id'), lesson_date: lessonDate, is_trial: fd.get('is_trial') === 'on' }).eq('id', fd.get('enrollment_id'))
   if (e2) {
     go('/admin/inscrieri', e2.code === '23505' ? 'Copilul este deja în această grupă.' : (e2.message || 'Nu am putut schimba grupa.'), 'eroare')
   }
@@ -42,21 +44,15 @@ export async function deleteEnrollment(fd) {
 export async function saveGroup(fd) {
   const sb = await adminCtx()
   const id = fd.get('id')
-  const isTrial = fd.get('is_trial') === 'on'
-  const trialDate = isTrial ? String(fd.get('trial_date') || '') : ''
-  if (isTrial && !/^\d{4}-\d{2}-\d{2}$/.test(trialDate)) {
-    go('/admin/grupe', 'Alege data lecției de probă.', 'eroare')
-  }
   const payload = {
     name: String(fd.get('name') || '').trim(),
-    weekday: isTrial ? (parse(trialDate).getUTCDay() || 7) : Number(fd.get('weekday')),
+    weekday: Number(fd.get('weekday')),
     start_time: fd.get('start_time'),
     end_time: fd.get('end_time'),
-    price: isTrial ? TRIAL_PRICE : Number(fd.get('price') || 0),
+    price: Number(fd.get('price') || 0),
     capacity: Number(fd.get('capacity') || 8),
     is_open: fd.get('is_open') === 'on',
     age_group: fd.get('age_group') === '8-12' ? '8-12' : '4-7',
-    trial_date: isTrial ? trialDate : null,
   }
   if (!payload.name) go('/admin/grupe', 'Scrie numele grupei.', 'eroare')
   const { error } = id
@@ -122,7 +118,8 @@ export async function saveAttendance(fd) {
   if (closed?.length) to('Lecția aceasta este închisă.', 'eroare')
 
   const present = new Set(fd.getAll('present').map(String))
-  const { data: enr } = await sb.from('enrollments').select('child_id').eq('group_id', group_id)
+  const { data: enr } = await sb.from('enrollments').select('child_id')
+    .eq('group_id', group_id).eq('lesson_date', lesson_date)
   const enrolled = new Set((enr || []).map((e) => e.child_id))
   const { data: cur } = await sb.from('attendance').select('child_id')
     .eq('group_id', group_id).eq('lesson_date', lesson_date)

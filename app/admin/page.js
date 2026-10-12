@@ -1,26 +1,29 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import {
-  today, mondayOf, addDays, monthRange, addMonths, datesOfWeekday,
+  TRIAL_PRICE, today, mondayOf, addDays, monthRange, addMonths, datesOfWeekday,
   fmtDate, fmtDateLong, fmtMonth, lei, ZILE,
 } from '@/lib/dates'
 
 export const metadata = { title: 'Bani – Administrare' }
 export const dynamic = 'force-dynamic'
 
-function calc(groups, cancelled, from, to) {
+function calc(groups, enr, cancelled, from, to) {
   const rows = groups.map((g) => {
-    const dates = g.trial_date
-      ? (g.trial_date >= from && g.trial_date <= to ? [g.trial_date] : [])
-      : datesOfWeekday(g.weekday, from, to)
-    const held = dates.filter((d) => !cancelled.has(`${g.id}|${d}`))
-    const kids = g.enrollments?.[0]?.count || 0
-    return {
-      g, kids,
-      held: held.length,
-      closed: dates.length - held.length,
-      income: held.length * kids * Number(g.price),
+    const per = {}
+    for (const e of enr) {
+      if (e.group_id === g.id && e.lesson_date >= from && e.lesson_date <= to) {
+        const x = per[e.lesson_date] || (per[e.lesson_date] = { n: 0, trial: 0 })
+        x.n++
+        if (e.is_trial) x.trial++
+      }
     }
+    let held = 0, closed = 0, kids = 0, trials = 0
+    for (const [d, x] of Object.entries(per)) {
+      if (cancelled.has(`${g.id}|${d}`)) closed++
+      else { held++; kids += x.n; trials += x.trial }
+    }
+    return { g, kids, trials, held, closed, income: (kids - trials) * Number(g.price) + trials * TRIAL_PRICE }
   }).filter((r) => r.held + r.closed > 0)
   return { rows, total: rows.reduce((s, r) => s + r.income, 0) }
 }
@@ -31,14 +34,14 @@ function Table({ data }) {
     <div className="table-wrap">
       <table>
         <thead>
-          <tr><th>Grupa</th><th>Lecții</th><th>Copii</th><th>Preț lecție</th><th>Venit</th></tr>
+          <tr><th>Grupa</th><th>Lecții</th><th>Înscrieri</th><th>Preț lecție</th><th>Venit</th></tr>
         </thead>
         <tbody>
           {data.rows.map((r) => (
             <tr key={r.g.id}>
               <td>{r.g.name}<div className="muted">{ZILE[r.g.weekday]}</div></td>
               <td>{r.held}{r.closed > 0 && <div className="note">{r.closed} închise</div>}</td>
-              <td>{r.kids}</td>
+              <td>{r.kids}{r.trials > 0 && <div className="muted">din care {r.trials} de probă</div>}</td>
               <td>{lei(r.g.price)}</td>
               <td><strong>{lei(r.income)}</strong></td>
             </tr>
@@ -58,21 +61,24 @@ export default async function Bani({ searchParams }) {
   const { from, to } = monthRange(ym)
 
   const sb = await createClient()
-  const [{ data: groups }, { data: cl }] = await Promise.all([
-    sb.from('groups').select('*, enrollments(count)'),
+  const lo = weekStart < from ? weekStart : from
+  const hi = weekEnd > to ? weekEnd : to
+  const [{ data: groups }, { data: cl }, { data: enr }] = await Promise.all([
+    sb.from('groups').select('*'),
     sb.from('cancelled_lessons').select('group_id,lesson_date'),
+    sb.from('enrollments').select('group_id,lesson_date,is_trial').gte('lesson_date', lo).lte('lesson_date', hi).limit(5000),
   ])
   const cancelled = new Set((cl || []).map((c) => `${c.group_id}|${c.lesson_date}`))
 
-  const week = calc(groups || [], cancelled, weekStart, weekEnd)
-  const month = calc(groups || [], cancelled, from, to)
+  const week = calc(groups || [], enr || [], cancelled, weekStart, weekEnd)
+  const month = calc(groups || [], enr || [], cancelled, from, to)
   const href = (s, l) => `/admin?sapt=${s}&luna=${l}`
 
   return (
     <main>
       <h1>Bani</h1>
       <p className="muted">
-        Venitul se calculează din înscrierile active: lecții ținute × copii înscriși × prețul lecției.
+        Venitul se calculează din înscrierile la fiecare lecție: numărul de copii × prețul lecției (lecția de probă se numără cu {lei(TRIAL_PRICE)}).
         Lecțiile închise nu se numără.
       </p>
 

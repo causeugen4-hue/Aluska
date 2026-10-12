@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { saveAttendance } from '../actions'
-import { slot, today, addDays, datesOfWeekday, fmtDateLong } from '@/lib/dates'
+import { slot, today, addDays, datesOfWeekday, fmtDateLong, lei, TRIAL_PRICE } from '@/lib/dates'
 
 export const metadata = { title: 'Prezență – Administrare' }
 export const dynamic = 'force-dynamic'
@@ -15,9 +15,7 @@ export default async function Prezenta({ searchParams }) {
 
   let dates = []
   if (g) {
-    dates = g.trial_date
-      ? (g.trial_date <= t ? [g.trial_date] : [])
-      : datesOfWeekday(g.weekday, addDays(t, -56), t).reverse()
+    dates = datesOfWeekday(g.weekday, addDays(t, -56), t).reverse()
   }
   const date = dates.includes(sp.data) ? sp.data : dates[0]
 
@@ -27,8 +25,8 @@ export default async function Prezenta({ searchParams }) {
   if (g && date) {
     const [{ data: enr }, { data: att }, { data: cl }] = await Promise.all([
       sb.from('enrollments')
-        .select('id, child:children(id,name,parent:profiles(full_name))')
-        .eq('group_id', g.id).order('created_at'),
+        .select('id, is_trial, child:children(id,name,parent:profiles(full_name))')
+        .eq('group_id', g.id).eq('lesson_date', date).order('created_at'),
       sb.from('attendance').select('child_id').eq('group_id', g.id).eq('lesson_date', date),
       sb.from('cancelled_lessons').select('group_id').eq('group_id', g.id).eq('lesson_date', date),
     ])
@@ -78,7 +76,7 @@ export default async function Prezenta({ searchParams }) {
       {g && date && !isClosed && (
         <section className="block">
           <h2>{g.name}, {fmtDateLong(date)}</h2>
-          {!kids.length && <p className="empty">Nu sunt copii înscriși la această grupă.</p>}
+          {!kids.length && <p className="empty">Nu sunt copii înscriși la această lecție.</p>}
           {kids.length > 0 && (
             <form action={saveAttendance} className="form">
               <input type="hidden" name="group_id" value={g.id} />
@@ -90,7 +88,7 @@ export default async function Prezenta({ searchParams }) {
                       <input type="checkbox" name="present" value={k.child.id} defaultChecked={present.has(k.child.id)} />
                       {k.child.name}
                     </label>
-                    <span className="muted">{k.child.parent?.full_name}</span>
+                    <span className="muted">{k.child.parent?.full_name} · {k.is_trial ? `lecție de probă, ${lei(TRIAL_PRICE)}` : lei(g.price)}</span>
                   </li>
                 ))}
               </ul>

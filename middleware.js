@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
 export async function middleware(request) {
-  let response = NextResponse.next({ request })
+  const pending = []
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -14,8 +14,7 @@ export async function middleware(request) {
         },
         setAll(list) {
           list.forEach(({ name, value }) => request.cookies.set(name, value))
-          response = NextResponse.next({ request })
-          list.forEach(({ name, value, options }) => response.cookies.set(name, value, options))
+          pending.push(...list)
         },
       },
     }
@@ -23,14 +22,24 @@ export async function middleware(request) {
 
   const { data: { user } } = await supabase.auth.getUser()
   const path = request.nextUrl.pathname
+  const apply = (res) => {
+    pending.forEach(({ name, value, options }) => res.cookies.set(name, value, options))
+    return res
+  }
 
   if (!user && (path.startsWith('/cont') || path.startsWith('/magazin') || path.startsWith('/admin'))) {
     const url = request.nextUrl.clone()
     url.pathname = '/autentificare'
     url.search = ''
-    return NextResponse.redirect(url)
+    return apply(NextResponse.redirect(url))
   }
-  return response
+
+  // Paginile citesc utilizatorul de aici, fără să mai întrebe încă o dată Supabase.
+  // Antetul e șters mai întâi, ca să nu poată fi falsificat din exterior.
+  const headers = new Headers(request.headers)
+  headers.delete('x-user-id')
+  if (user) headers.set('x-user-id', user.id)
+  return apply(NextResponse.next({ request: { headers } }))
 }
 
 export const config = {

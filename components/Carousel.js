@@ -41,12 +41,6 @@ export default function Carousel({ photos }) {
           </figure>
         ))}
       </div>
-      {photos.length > 1 && (
-        <>
-          <button type="button" className="car-btn prev" onClick={() => move(-1)} aria-label="Pozele anterioare">‹</button>
-          <button type="button" className="car-btn next" onClick={() => move(1)} aria-label="Pozele următoare">›</button>
-        </>
-      )}
     </div>
   )
 }

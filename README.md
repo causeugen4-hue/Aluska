@@ -41,3 +41,16 @@ Rulează o singură dată `supabase/migration-2.sql` în Supabase → SQL Editor
 - **Grupe:** ai categoria de vârstă (4–7 sau 8–12) și bifa „Lecție de probă” (130 lei, o singură dată, cu dată anume).
 - **Prezență:** Administrare → Prezență; bifezi copiii prezenți, părintele primește 5 steluțe pentru fiecare.
 - **Magazin:** Administrare → Magazin; adaugi produse cu preț în steluțe, vezi comenzile, le marchezi predate sau le anulezi (steluțele se returnează).
+
+## Pasul 3 (înscriere pe o singură lecție + viteză)
+Rulează o singură dată `supabase/migration-3.sql` în Supabase → SQL Editor (după migration-2). Înscrierile vechi sunt mutate pe prima lecție următoare a grupei.
+
+- Părintele alege o grupă, apoi o zi anume (următoarele 5 lecții), cu bară de locuri pe fiecare zi. Pe următoarea lecție o alege când vrea.
+- Steluțele contului apar în dreapta sus, în antet.
+- Pentru viteză: în Vercel → Settings → Functions → Function Region, alege regiunea cea mai apropiată de proiectul Supabase.
+
+## Cum funcționează lecțiile
+O „grupă” din Administrare este o lecție care se repetă în fiecare săptămână, la aceeași oră (de ex. sâmbătă 10:00, 4–7 ani). Pe site apar lecțiile din săptămâna aceasta și din cea următoare. Părintele apasă pe una, alege copilul și se înscrie la acea lecție, apoi poate alege și altă lecție. 
+
+## Lecția de probă
+Nu e un tip separat de lecție, ci o reducere pentru părinte: la prima lecție a copilului, părintele bifează „Lecție de probă” la înscriere și achită 130 lei în loc de prețul grupei, doar el, nu toți copiii din acea zi. Rulează `supabase/migration-4.sql`. În Administrare → Prezență vezi pentru fiecare copil suma de achitat, iar în „Bani” lecția de probă se numără cu 130 lei.

@@ -1,12 +1,13 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { currentUserId } from '@/lib/auth'
 
 export default async function AdminLayout({ children }) {
+  const uid = await currentUserId()
+  if (!uid) redirect('/autentificare')
   const sb = await createClient()
-  const { data: { user } } = await sb.auth.getUser()
-  if (!user) redirect('/autentificare')
-  const { data: profile } = await sb.from('profiles').select('is_admin').eq('id', user.id).single()
+  const { data: profile } = await sb.from('profiles').select('is_admin').eq('id', uid).maybeSingle()
   if (!profile?.is_admin) redirect('/cont')
 
   return (

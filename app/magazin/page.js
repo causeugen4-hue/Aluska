@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { currentUserId } from '@/lib/auth'
 import ConfirmButton from '@/components/ConfirmButton'
 import { buy } from './actions'
 import { fmtDateLong } from '@/lib/dates'
@@ -11,15 +12,15 @@ const STATUS = { nou: 'Se pregătește', predat: 'Predată', anulat: 'Anulată' 
 
 export default async function Magazin({ searchParams }) {
   const sp = await searchParams
+  const uid = await currentUserId()
+  if (!uid) redirect('/autentificare')
   const sb = await createClient()
-  const { data: { user } } = await sb.auth.getUser()
-  if (!user) redirect('/autentificare')
 
   const [{ data: items }, { data: stars }, { data: orders }, { data: ledger }] = await Promise.all([
     sb.from('shop_items').select('*').eq('is_active', true).order('price_stars'),
     sb.rpc('my_stars'),
-    sb.from('shop_orders').select('*').eq('parent_id', user.id).order('created_at', { ascending: false }).limit(10),
-    sb.from('star_ledger').select('*').eq('parent_id', user.id).order('created_at', { ascending: false }).limit(10),
+    sb.from('shop_orders').select('*').eq('parent_id', uid).order('created_at', { ascending: false }).limit(10),
+    sb.from('star_ledger').select('*').eq('parent_id', uid).order('created_at', { ascending: false }).limit(10),
   ])
   const balance = stars ?? 0
 

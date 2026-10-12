@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { addPhoto } from '@/app/admin/actions'
 
-async function shrink(file, max = 1600) {
+async function shrink(file, max = 1000) {
   const bmp = await createImageBitmap(file)
   const scale = Math.min(1, max / Math.max(bmp.width, bmp.height))
   const w = Math.round(bmp.width * scale)
@@ -13,7 +13,7 @@ async function shrink(file, max = 1600) {
   canvas.width = w
   canvas.height = h
   canvas.getContext('2d').drawImage(bmp, 0, 0, w, h)
-  return new Promise((res) => canvas.toBlob(res, 'image/jpeg', 0.82))
+  return new Promise((res) => canvas.toBlob(res, 'image/jpeg', 0.8))
 }
 
 export default function GalleryUploader() {
