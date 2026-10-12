@@ -63,3 +63,10 @@ Rulează o singură dată `supabase/migration-5.sql` în Supabase → SQL Editor
 - **Înscriere:** dacă părintele are lecții în abonament, poate alege „Cu abonamentul”. Fiecare înscriere scade o lecție; dacă anulează înscrierea, lecția se întoarce, iar dacă închizi o lecție din Administrare, se returnează și ea.
 - La ultima lecție i se spune că aceasta este ultima, iar când abonamentul se termină apare mesajul de reînnoire (cu telefonul și Instagramul din `lib/contact.js`).
 - **Bani:** lecțiile plătite cu abonament nu se numără la venitul lecției, fiindcă sunt achitate în avans.
+
+## Pasul 6 (imagini din Administrare, maximum 5 copii)
+Rulează o singură dată `supabase/migration-6.sql` în Supabase → SQL Editor (după migration-5). Apoi fă deploy.
+
+- **Administrare → Imagini:** alegi logoul (apare rotund în antet și ca iconiță în tab) și poza de la începutul paginii, pe care o văd vizitatorii fără cont. Poți reveni oricând la imaginile inițiale.
+- **Grupe:** maximum 5 copii pe lecție (grupele mai mari au fost reduse la 5 de migrare).
+- **Linia locurilor:** un segment pe fiecare loc; verde când e liber, galben la 3 copii, portocaliu la 4, roșu când e plină. Cardul lecției are marginea din stânga în aceeași culoare.

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { currentUserId } from '@/lib/auth'
 import { today, lessonsWindow } from '@/lib/dates'
 import { photoUrl } from '@/lib/gallery'
+import { getSiteImages } from '@/lib/site'
 import Weeks from '@/components/Weeks'
 import Carousel from '@/components/Carousel'
 
@@ -11,11 +12,12 @@ export const dynamic = 'force-dynamic'
 export default async function Home() {
   const sb = await createClient()
   const uid = await currentUserId()
-  const [{ data: groups }, { data: spots }, { data: photosRaw }, { data: cl }] = await Promise.all([
+  const [{ data: groups }, { data: spots }, { data: photosRaw }, { data: cl }, imgs] = await Promise.all([
     sb.from('groups').select('*'),
     sb.rpc('group_spots'),
     sb.from('gallery_photos').select('*').order('created_at', { ascending: false }).limit(24),
     sb.from('cancelled_lessons').select('group_id,lesson_date').gte('lesson_date', today()),
+    getSiteImages(),
   ])
 
   const cancelled = new Set((cl || []).map((c) => `${c.group_id}|${c.lesson_date}`))
@@ -58,7 +60,9 @@ export default async function Home() {
             <Link href="/#grupe" className="btn ghost">Vezi lecțiile</Link>
           </div>
         </div>
-        <img src="/logo.png" alt="Alușka Art Studio" className="hero-logo" width="480" height="480" />
+        {imgs.hero
+          ? <img src={imgs.hero} alt="Alușka Art Studio" className="hero-photo" />
+          : <img src="/logo.png" alt="Alușka Art Studio" className="hero-logo" width="480" height="480" />}
       </section>
 
       {gallery}

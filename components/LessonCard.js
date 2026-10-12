@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import SpotsBar from '@/components/SpotsBar'
 import GroupMeta from '@/components/GroupMeta'
-import { hm, priceLabel, fmtDay, cap } from '@/lib/dates'
+import { hm, priceLabel, fmtDay, cap, occupancyLevel } from '@/lib/dates'
 
 export default function LessonCard({ g, date, taken, available, full, loggedIn }) {
   const free = g.capacity - taken
@@ -11,7 +11,7 @@ export default function LessonCard({ g, date, taken, available, full, loggedIn }
     : `${free} locuri libere`
 
   return (
-    <Link href={`/lectie/${g.id}/${date}`} className="card group-link">
+    <Link href={`/lectie/${g.id}/${date}`} className={`card group-link occ-${occupancyLevel(taken, g.capacity, g.is_open)}`}>
       <GroupMeta g={g} />
       <p className="when">{cap(fmtDay(date))}, {hm(g.start_time)}–{hm(g.end_time)}</p>
       <h3>{g.name}</h3>

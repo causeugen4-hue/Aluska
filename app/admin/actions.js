@@ -2,6 +2,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { randomInt } from 'node:crypto'
+import { revalidatePath } from 'next/cache'
 import { today } from '@/lib/dates'
 
 async function adminCtx() {
@@ -51,7 +52,7 @@ export async function saveGroup(fd) {
     start_time: fd.get('start_time'),
     end_time: fd.get('end_time'),
     price: Number(fd.get('price') || 0),
-    capacity: Number(fd.get('capacity') || 8),
+    capacity: Math.min(5, Math.max(1, Math.floor(Number(fd.get('capacity'))) || 5)),
     is_open: fd.get('is_open') === 'on',
     age_group: fd.get('age_group') === '8-12' ? '8-12' : '4-7',
   }
@@ -229,4 +230,30 @@ export async function deleteSubscription(fd) {
   const { error } = await sb.from('subscriptions').delete().eq('id', fd.get('id'))
   if (error) go(SUBS, 'Nu am putut șterge abonamentul.', 'eroare')
   go(SUBS, 'Abonamentul a fost șters.')
+}
+
+// ---------- Imagini site (logo, poza de la început) ----------
+const KINDS = ['logo', 'hero']
+
+export async function setSiteImage(kind, path) {
+  const sb = await adminCtx()
+  if (!KINDS.includes(kind) || !String(path).startsWith('site/')) return { error: 'Imagine necunoscută.' }
+  const { data: old } = await sb.from('site_images').select('path').eq('key', kind).maybeSingle()
+  const { error } = await sb.from('site_images').upsert({ key: kind, path: String(path), updated_at: new Date().toISOString() })
+  if (error) return { error: 'Nu am putut salva imaginea.' }
+  if (old?.path && old.path !== path) await sb.storage.from('gallery').remove([old.path])
+  revalidatePath('/', 'layout')
+  return { ok: true }
+}
+
+export async function resetSiteImage(fd) {
+  const sb = await adminCtx()
+  const kind = String(fd.get('kind'))
+  if (!KINDS.includes(kind)) go('/admin/imagini', 'Imagine necunoscută.', 'eroare')
+  const { data: old } = await sb.from('site_images').select('path').eq('key', kind).maybeSingle()
+  const { error } = await sb.from('site_images').delete().eq('key', kind)
+  if (error) go('/admin/imagini', 'Nu am putut reveni la imaginea inițială.', 'eroare')
+  if (old?.path) await sb.storage.from('gallery').remove([old.path])
+  revalidatePath('/', 'layout')
+  go('/admin/imagini', 'Am revenit la imaginea inițială.')
 }

@@ -5,7 +5,7 @@ import { currentUserId } from '@/lib/auth'
 import SpotsBar from '@/components/SpotsBar'
 import GroupMeta from '@/components/GroupMeta'
 import EnrollForm from '@/components/EnrollForm'
-import { hm, priceLabel, fmtDay, cap, isLessonDate, hasStarted } from '@/lib/dates'
+import { hm, priceLabel, fmtDay, cap, isLessonDate, hasStarted, occupancyLevel } from '@/lib/dates'
 import { withUsage } from '@/lib/subscriptions'
 
 export const dynamic = 'force-dynamic'
@@ -59,7 +59,7 @@ export default async function Lectie({ params, searchParams }) {
     <main className="wrap">
       <p><Link href="/#grupe">← Toate lecțiile</Link></p>
 
-      <article className="card wide group-detail">
+      <article className={`card wide group-detail occ-${occupancyLevel(taken, g.capacity, g.is_open)}`}>
         <GroupMeta g={g} />
         <h1 className="page-title">{cap(fmtDay(date))}, {hm(g.start_time)}–{hm(g.end_time)}</h1>
         <p className="when">{g.name}</p>

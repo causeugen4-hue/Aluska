@@ -25,7 +25,7 @@ function GroupFields({ g }) {
       <label>De la<input type="time" name="start_time" defaultValue={hm(g?.start_time) || '17:00'} required /></label>
       <label>Până la<input type="time" name="end_time" defaultValue={hm(g?.end_time) || '18:30'} required /></label>
       <label>Preț pe lecție (lei)<input type="number" name="price" min="0" step="0.01" defaultValue={g?.price ?? ''} required /></label>
-      <label>Locuri<input type="number" name="capacity" min="1" defaultValue={g?.capacity ?? 8} required /></label>
+      <label>Locuri <small>(maximum 5)</small><input type="number" name="capacity" min="1" max="5" defaultValue={g?.capacity ?? 5} required /></label>
       <label className="check">
         <input type="checkbox" name="is_open" defaultChecked={g ? g.is_open : true} /> Înscrieri deschise
       </label>

@@ -3,9 +3,11 @@ import { createClient } from '@/lib/supabase/server'
 import { currentUserId } from '@/lib/auth'
 import { logout } from '@/app/autentificare/actions'
 import StarsBadge from '@/components/StarsBadge'
+import { getSiteImages } from '@/lib/site'
 
 export default async function Header() {
   const uid = await currentUserId()
+  const imgs = await getSiteImages()
   let isAdmin = false
   let stars = 0
   if (uid) {
@@ -21,7 +23,7 @@ export default async function Header() {
   return (
     <header className={uid ? 'top has-stars' : 'top'}>
       <Link href="/" className="brand">
-        <img src="/logo-icon.png" alt="" className="brand-logo" width="52" height="52" />
+        <img src={imgs.logo || '/logo-icon.png'} alt="" className="brand-logo" width="52" height="52" />
         Alușka <span className="brand-sub">Art Studio</span>
       </Link>
       {uid && <StarsBadge initial={stars} />}

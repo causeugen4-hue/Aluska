@@ -1,18 +1,20 @@
+import { occupancyLevel } from '@/lib/dates'
+
+// O linie cu un segment pentru fiecare loc; culoarea arată cât de ocupată e lecția
 export default function SpotsBar({ taken, capacity, open = true }) {
-  const pct = capacity > 0 ? Math.min(100, Math.round((taken / capacity) * 100)) : 0
-  const full = taken >= capacity
-  const level = !open ? 'closed' : full ? 'full' : pct >= 75 ? 'high' : 'ok'
+  const level = occupancyLevel(taken, capacity, open)
+  const n = Math.max(1, Math.min(capacity, 12))
   return (
     <div className="spots">
       <div
-        className={`bar ${level}`}
+        className={`segs ${level}`}
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={capacity}
         aria-valuenow={taken}
         aria-label="Locuri ocupate"
       >
-        <span style={{ width: `${pct}%` }} />
+        {Array.from({ length: n }, (_, i) => <span key={i} className={i < taken ? 'on' : ''} />)}
       </div>
       <p className="spots-text">{taken} din {capacity} locuri ocupate</p>
     </div>
