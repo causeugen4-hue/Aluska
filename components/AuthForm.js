@@ -11,17 +11,17 @@ export default function AuthForm({ mode, action }) {
         <>
           <label>
             Numele tău
-            <input name="full_name" autoComplete="name" required />
+            <input name="full_name" autoComplete="name" defaultValue={state?.values?.full_name} required />
           </label>
           <label>
             Telefon
-            <input name="phone" type="tel" autoComplete="tel" required />
+            <input name="phone" type="tel" autoComplete="tel" defaultValue={state?.values?.phone} required />
           </label>
         </>
       )}
       <label>
         Email
-        <input name="email" type="email" autoComplete="email" required />
+        <input name="email" type="email" autoComplete="email" defaultValue={state?.values?.email} required />
       </label>
       <label>
         Parolă {reg && <small>(minim 8 caractere)</small>}
@@ -33,7 +33,7 @@ export default function AuthForm({ mode, action }) {
           required
         />
       </label>
-      {state?.error && <p className="alert err" role="alert">{state.error}</p>}
+      {state?.error && <p className="alert err" role="alert">{state.error}{state.detail && <><br /><small>Detalii: {state.detail}</small></>}</p>}
       {state?.message && <p className="alert ok" role="status">{state.message}</p>}
       <button className="btn" disabled={pending}>
         {pending ? 'Se încarcă…' : reg ? 'Creează cont' : 'Intră în cont'}

@@ -131,3 +131,18 @@ tr:last-child td { border-bottom: 0; }
   body { font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+
+/* Grupe: carduri apăsabile și bara de locuri */
+.page-title { font-size: clamp(1.7rem, 5vw, 2.4rem); margin-top: 0; }
+.group-link { display: block; color: inherit; text-decoration: none; transition: transform .1s, box-shadow .1s; }
+.group-link:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--ink); }
+.group-link .go { display: inline-block; margin-top: .7rem; font-weight: 800; color: var(--cobalt); }
+.spots { margin: .7rem 0 .2rem; }
+.bar { height: 14px; background: var(--paper); border: 2px solid var(--ink); border-radius: 999px; overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--mint); border-radius: 999px; transition: width .4s; }
+.bar.high span { background: var(--sun); }
+.bar.full span { background: var(--rose); }
+.bar.closed span { background: var(--line); }
+.spots-text { margin: .3rem 0 0; font-size: .88rem; color: var(--muted); }
+.group-detail { max-width: 520px; margin-bottom: 1rem; }
+.sub { margin-top: 1.6rem; }

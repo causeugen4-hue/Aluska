@@ -11,7 +11,8 @@ export async function login(_prev, fd) {
   if (error) {
     return { error: error.message?.toLowerCase().includes('confirm')
       ? 'Confirmă mai întâi adresa de email (verifică inbox-ul).'
-      : 'Emailul sau parola nu sunt corecte.' }
+      : 'Emailul sau parola nu sunt corecte.',
+      values: { email: String(fd.get('email')) } }
   }
   const { data: profile } = await sb.from('profiles').select('is_admin').eq('id', data.user.id).single()
   redirect(profile?.is_admin ? '/admin' : '/cont')
@@ -35,7 +36,9 @@ export async function register(_prev, fd) {
   if (error) {
     return { error: error.message?.toLowerCase().includes('already')
       ? 'Există deja un cont cu acest email. Încearcă să te autentifici.'
-      : 'Nu am putut crea contul. Verifică datele și încearcă din nou.' }
+      : 'Nu am putut crea contul.',
+      detail: error.message,
+      values: { full_name: String(fd.get('full_name')), phone: String(fd.get('phone')), email: String(fd.get('email')) } }
   }
   if (!data.session) {
     return { message: 'Contul a fost creat. Verifică emailul, confirmă adresa, apoi autentifică-te.' }

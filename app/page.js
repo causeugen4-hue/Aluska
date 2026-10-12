@@ -1,17 +1,48 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { slot, lei } from '@/lib/dates'
+import SpotsBar from '@/components/SpotsBar'
 
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
   const sb = await createClient()
-  const [{ data: groups }, { data: spots }] = await Promise.all([
+  const [{ data: { user } }, { data: groups }, { data: spots }] = await Promise.all([
+    sb.auth.getUser(),
     sb.from('groups').select('*').order('weekday').order('start_time'),
     sb.rpc('group_spots'),
   ])
   const taken = Object.fromEntries((spots || []).map((s) => [s.group_id, Number(s.taken)]))
+  const isFree = (g) => g.is_open && g.capacity - (taken[g.id] || 0) > 0
 
+  // Părinte autentificat: doar grupele disponibile
+  if (user) {
+    const available = (groups || []).filter(isFree)
+    return (
+      <main>
+        <section id="grupe" className="wrap">
+          <h1 className="page-title">Alege o grupă</h1>
+          <p className="lead">Apasă pe o grupă ca să înscrii copilul.</p>
+          {!available.length && (
+            <p className="empty">Momentan nu sunt grupe cu locuri libere. Revino în curând.</p>
+          )}
+          <div className="grid">
+            {available.map((g) => (
+              <Link href={`/grupa/${g.id}`} className="card group-link" key={g.id}>
+                <p className="when">{slot(g)}</p>
+                <h3>{g.name}</h3>
+                <p className="muted">{lei(g.price)} pe lecție</p>
+                <SpotsBar taken={taken[g.id] || 0} capacity={g.capacity} />
+                <span className="go">Înscrie copilul →</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      </main>
+    )
+  }
+
+  // Vizitator
   return (
     <main>
       <section className="hero">
@@ -37,16 +68,17 @@ export default async function Home() {
         {!groups?.length && <p className="empty">Programul va apărea aici în curând.</p>}
         <div className="grid">
           {(groups || []).map((g) => {
-            const free = g.capacity - (taken[g.id] || 0)
+            const t = taken[g.id] || 0
+            const free = g.capacity - t
             const status = !g.is_open ? 'Înscrieri închise' : free <= 0 ? 'Grupă plină' : free === 1 ? 'Un singur loc liber' : `${free} locuri libere`
-            const ok = g.is_open && free > 0
             return (
-              <article className="card" key={g.id}>
+              <Link href={`/grupa/${g.id}`} className="card group-link" key={g.id}>
                 <p className="when">{slot(g)}</p>
                 <h3>{g.name}</h3>
                 <p className="muted">{lei(g.price)} pe lecție</p>
-                <p className={ok ? 'tag good' : 'tag'}>{status}</p>
-              </article>
+                <SpotsBar taken={t} capacity={g.capacity} open={g.is_open} />
+                <p className={isFree(g) ? 'tag good' : 'tag'}>{status}</p>
+              </Link>
             )
           })}
         </div>
