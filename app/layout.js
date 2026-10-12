@@ -1,5 +1,6 @@
 import { Bricolage_Grotesque, Nunito } from 'next/font/google'
 import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 import './globals.css'
 
 const head = Bricolage_Grotesque({ subsets: ['latin', 'latin-ext'], variable: '--font-head', display: 'swap' })
@@ -16,7 +17,7 @@ export default function RootLayout({ children }) {
       <body>
         <Header />
         {children}
-        <footer className="foot">© {new Date().getFullYear()} Alușka Art Studio</footer>
+        <Footer />
       </body>
     </html>
   )

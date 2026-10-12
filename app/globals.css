@@ -42,6 +42,13 @@ a { color: var(--cobalt); }
 .nav a:not(.btn), .subnav a { color: var(--ink); font-weight: 700; text-decoration: none; }
 .nav a:not(.btn):hover, .subnav a:hover { text-decoration: underline; text-underline-offset: 4px; }
 .foot { padding: 2rem 1rem; text-align: center; color: var(--muted); font-size: .9rem; }
+.contact { margin-bottom: 1.2rem; }
+.contact-title { margin: 0 0 .6rem; font-size: 1.1rem; color: var(--ink); }
+.contact-list { display: flex; justify-content: center; gap: .8rem; list-style: none; margin: 0; padding: 0; }
+.contact-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--ink); background: var(--white); color: var(--ink); transition: background .15s, color .15s; }
+.contact-icon:hover { background: var(--cobalt); color: #fff; }
+.brand-logo { height: 44px; width: auto; display: block; }
+.hero-logo { width: min(400px, 80vw); height: auto; justify-self: center; }
 
 /* Layout */
 main { min-height: 60vh; }
@@ -112,7 +119,14 @@ details.add { margin: 1rem 0; }
 details.add summary { cursor: pointer; font-weight: 800; }
 details.add form { margin-top: 1rem; }
 .lessons li { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .4rem 0; border-top: 1px solid var(--line); }
-.enrow { padding: 1rem 0; border-top: 1px solid var(--line); display: grid; gap: .6rem; }
+.enrow { border-top: 1px solid var(--line); }
+.en-sum { display: flex; flex-wrap: wrap; align-items: center; gap: .2rem .9rem; padding: .7rem .2rem; cursor: pointer; list-style: none; }
+.en-sum::-webkit-details-marker { display: none; }
+.en-sum::before { content: '▸'; color: var(--muted); transition: transform .15s; }
+.enrow[open] > .en-sum::before { transform: rotate(90deg); }
+.en-sum:hover { background: #EEF0FB; }
+.en-parent { margin-left: auto; }
+.en-body { display: grid; gap: .6rem; padding: .4rem .2rem 1rem; }
 .enform { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: .8rem; align-items: end; }
 .parent { display: flex; flex-wrap: wrap; gap: .3rem 1rem; font-size: .95rem; }
 .money { margin: 1.5rem 0 2.5rem; }
@@ -127,7 +141,7 @@ tr:last-child td { border-bottom: 0; }
 
 @media (max-width: 760px) {
   .hero { grid-template-columns: 1fr; }
-  .palette { order: -1; width: 200px; }
+  .hero-logo { order: -1; width: 200px; }
   body { font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }

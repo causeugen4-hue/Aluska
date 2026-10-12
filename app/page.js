@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { currentUserId } from '@/lib/auth'
-import { today, lessonsWindow, lei, TRIAL_PRICE } from '@/lib/dates'
+import { today, lessonsWindow } from '@/lib/dates'
 import { photoUrl } from '@/lib/gallery'
 import Weeks from '@/components/Weeks'
 import Carousel from '@/components/Carousel'
@@ -37,8 +37,6 @@ export default async function Home() {
         {gallery}
         <section id="grupe" className="wrap">
           <h1 className="page-title">Alege o lecție</h1>
-          <p className="lead">Apasă pe lecția la care vrei să vină copilul. După înscriere poți alege și altă lecție.</p>
-          <p className="trial-note">Prima lecție a copilului poate fi lecție de probă: plătești doar {lei(TRIAL_PRICE)}.</p>
           <Weeks thisWeek={thisWeek} nextWeek={nextWeek} range={range} loggedIn />
         </section>
       </main>
@@ -60,16 +58,12 @@ export default async function Home() {
             <Link href="/#grupe" className="btn ghost">Vezi lecțiile</Link>
           </div>
         </div>
-        <div className="palette" aria-hidden="true">
-          <i className="d d1" /><i className="d d2" /><i className="d d3" />
-          <i className="d d4" /><i className="d d5" /><i className="hole" />
-        </div>
+        <img src="/logo.png" alt="Alușka Art Studio" className="hero-logo" width="480" height="480" />
       </section>
 
       {gallery}
 
       <section id="grupe" className="wrap">
-        <p className="trial-note">Prima lecție a copilului poate fi lecție de probă: plătești doar {lei(TRIAL_PRICE)}.</p>
         <Weeks thisWeek={thisWeek} nextWeek={nextWeek} range={range} />
       </section>
 

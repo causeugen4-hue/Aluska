@@ -38,35 +38,41 @@ export default async function Inscrieri({ searchParams }) {
                 <div key={d}>
                   <h4>{cap(fmtDay(d))}, {day.length}/{g.capacity} copii</h4>
                   {day.map((r) => (
-                    <div className="enrow" key={r.id}>
-                      <form action={updateEnrollment} className="enform">
-                        <input type="hidden" name="enrollment_id" value={r.id} />
-                        <input type="hidden" name="child_id" value={r.child.id} />
-                        <label>Copil<input name="name" defaultValue={r.child.name} required /></label>
-                        <label>Data nașterii<input type="date" name="birth_date" defaultValue={r.child.birth_date || ''} /></label>
-                        <label>Grupa
-                          <select name="group_id" defaultValue={g.id}>
-                            {groups.map((x) => <option key={x.id} value={x.id}>{x.name}, {slot(x)}</option>)}
-                          </select>
-                        </label>
-                        <label>Data lecției<input type="date" name="lesson_date" defaultValue={r.lesson_date} required /></label>
-                        <label className="check"><input type="checkbox" name="is_trial" defaultChecked={r.is_trial} /> Lecție de probă</label>
-                        <button className="btn small">Salvează</button>
-                      </form>
-                      <div className="parent">
+                    <details className="enrow" key={r.id}>
+                      <summary className="en-sum">
+                        <strong>{r.child.name}</strong>
                         <span className="muted">{age(r.child.birth_date)}</span>
                         {r.is_trial && <span className="chip trial">Probă, {lei(TRIAL_PRICE)}</span>}
-                        <span>Părinte: {r.child.parent?.full_name}</span>
-                        <a href={`tel:${r.child.parent?.phone}`}>{r.child.parent?.phone}</a>
-                        <span className="muted">{r.child.parent?.email}</span>
+                        <span className="muted en-parent">{r.child.parent?.full_name}</span>
+                      </summary>
+                      <div className="en-body">
+                        <form action={updateEnrollment} className="enform">
+                          <input type="hidden" name="enrollment_id" value={r.id} />
+                          <input type="hidden" name="child_id" value={r.child.id} />
+                          <label>Copil<input name="name" defaultValue={r.child.name} required /></label>
+                          <label>Data nașterii<input type="date" name="birth_date" defaultValue={r.child.birth_date || ''} /></label>
+                          <label>Grupa
+                            <select name="group_id" defaultValue={g.id}>
+                              {groups.map((x) => <option key={x.id} value={x.id}>{x.name}, {slot(x)}</option>)}
+                            </select>
+                          </label>
+                          <label>Data lecției<input type="date" name="lesson_date" defaultValue={r.lesson_date} required /></label>
+                          <label className="check"><input type="checkbox" name="is_trial" defaultChecked={r.is_trial} /> Lecție de probă</label>
+                          <button className="btn small">Salvează</button>
+                        </form>
+                        <div className="parent">
+                          <span>Părinte: {r.child.parent?.full_name}</span>
+                          <a href={`tel:${r.child.parent?.phone}`}>{r.child.parent?.phone}</a>
+                          <span className="muted">{r.child.parent?.email}</span>
+                        </div>
+                        <form action={deleteEnrollment}>
+                          <input type="hidden" name="enrollment_id" value={r.id} />
+                          <ConfirmButton className="linklike danger" message={`Ștergi înscrierea lui ${r.child.name}?`}>
+                            Șterge înscrierea
+                          </ConfirmButton>
+                        </form>
                       </div>
-                      <form action={deleteEnrollment}>
-                        <input type="hidden" name="enrollment_id" value={r.id} />
-                        <ConfirmButton className="linklike danger" message={`Ștergi înscrierea lui ${r.child.name}?`}>
-                          Șterge înscrierea
-                        </ConfirmButton>
-                      </form>
-                    </div>
+                    </details>
                   ))}
                 </div>
               )

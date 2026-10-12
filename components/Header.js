@@ -21,7 +21,7 @@ export default async function Header() {
   return (
     <header className={uid ? 'top has-stars' : 'top'}>
       <Link href="/" className="brand">
-        <span className="dots" aria-hidden="true"><i /><i /><i /></span>
+        <img src="/logo-icon.png" alt="" className="brand-logo" width="42" height="55" />
         Alușka <span className="brand-sub">Art Studio</span>
       </Link>
       {uid && <StarsBadge initial={stars} />}
