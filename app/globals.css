@@ -47,7 +47,7 @@ a { color: var(--cobalt); }
 .contact-list { display: flex; justify-content: center; gap: .8rem; list-style: none; margin: 0; padding: 0; }
 .contact-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--ink); background: var(--white); color: var(--ink); transition: background .15s, color .15s; }
 .contact-icon:hover { background: var(--cobalt); color: #fff; }
-.brand-logo { flex: 0 0 48px; width: 48px; height: 48px; min-width: 48px; aspect-ratio: 1 / 1; object-fit: cover; display: block; border-radius: 50%; border: 2px solid var(--ink); background: var(--paper); }
+.brand-logo { flex: 0 0 52px; width: 52px; height: 52px; min-width: 52px; aspect-ratio: 1 / 1; object-fit: cover; display: block; border-radius: 50%; border: 2px solid var(--ink); background: var(--paper); }
 .hero-logo { width: min(400px, 80vw); height: auto; aspect-ratio: 1 / 1; object-fit: contain; justify-self: center; }
 
 /* Layout */
@@ -235,13 +235,10 @@ tr:last-child td { border-bottom: 0; }
 .trial-opt small { display: block; font-weight: 400; color: var(--muted); }
 
 /* Zile separate în lista lecțiilor */
-.week { margin-bottom: 2rem; }
-.day { margin: 1.1rem 0 0; padding: 1rem 1rem 1.2rem; border: 2px solid var(--ink); border-left-width: 12px; border-radius: 22px; background: #EEF0FB; }
-.week .day:nth-of-type(4n + 1) { border-left-color: var(--rose); }
-.week .day:nth-of-type(4n + 2) { border-left-color: var(--sun); }
-.week .day:nth-of-type(4n + 3) { border-left-color: var(--mint); }
-.week .day:nth-of-type(4n + 4) { border-left-color: var(--cobalt); }
-.day-title { margin: 0 0 .8rem; font-size: 1.25rem; }
+.week { margin-bottom: 2.2rem; }
+.day { margin-top: 1.8rem; }
+.day-title { display: flex; align-items: center; gap: .9rem; margin: 0 0 .9rem; font-size: 1.1rem; font-weight: 800; color: var(--ink); }
+.day-title::after { content: ''; flex: 1; height: 2px; background: var(--line); border-radius: 2px; }
 .confirm-day { margin: 0; padding: .7rem 1rem; border: 2px solid var(--ink); border-radius: 12px; background: #FFF6D6; }
 
 /* Plata lecției și abonamente */
