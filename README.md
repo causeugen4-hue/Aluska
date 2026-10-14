@@ -70,3 +70,14 @@ Rulează o singură dată `supabase/migration-6.sql` în Supabase → SQL Editor
 - **Administrare → Imagini:** alegi logoul (apare rotund în antet și ca iconiță în tab) și poza de la începutul paginii, pe care o văd vizitatorii fără cont. Poți reveni oricând la imaginile inițiale.
 - **Grupe:** maximum 5 copii pe lecție (grupele mai mari au fost reduse la 5 de migrare).
 - **Linia locurilor:** un segment pe fiecare loc; verde când e liber, galben la 3 copii, portocaliu la 4, roșu când e plină. Cardul lecției are marginea din stânga în aceeași culoare.
+
+## Pasul 7 (notificări Telegram)
+Primești un mesaj pe Telegram când cineva își face cont și când cineva se înscrie la o lecție. Nu e nevoie de migrare în Supabase.
+
+1. În Telegram deschide **@BotFather**, scrie `/newbot`, alege un nume și un username care se termină în `bot`. Primești un **token** (de forma `123456:ABC...`).
+2. Deschide botul tău nou și scrie-i `/start` (sau orice mesaj).
+3. Deschide în browser `https://api.telegram.org/bot<TOKEN>/getUpdates` (pui tokenul în loc de `<TOKEN>`). În răspuns găsești `"chat":{"id":123456789,...}`. Acel număr e **chat id**.
+4. În Vercel → Settings → Environment Variables adaugă `TELEGRAM_BOT_TOKEN` și `TELEGRAM_CHAT_ID`, apoi fă Redeploy.
+5. **Mai multe persoane:** fiecare scrie `/start` botului, își află id-ul la pasul 3, iar în `TELEGRAM_CHAT_ID` pui id-urile separate prin virgulă, de exemplu `123456789,987654321`. Un id poate fi și al unui grup (începe cu `-`), dacă adaugi botul în grup.
+
+Dacă variabilele lipsesc, site-ul merge normal, doar că nu trimite notificări.

@@ -2,6 +2,32 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { withUsage } from '@/lib/subscriptions'
+import { notifyTelegram, esc } from '@/lib/telegram'
+import { fmtDay, cap, hm, lei, TRIAL_PRICE } from '@/lib/dates'
+
+async function notifyEnrollment({ sb, childId, groupId, lessonDate, isTrial, subscriptionId, leftAfter }) {
+  try {
+    const [{ data: child }, { data: g }] = await Promise.all([
+      sb.from('children').select('name,birth_date,parent:profiles(full_name,phone)').eq('id', childId).maybeSingle(),
+      sb.from('groups').select('name,start_time,end_time,price').eq('id', groupId).maybeSingle(),
+    ])
+    const plata = isTrial
+      ? `lecție de probă, ${lei(TRIAL_PRICE)}`
+      : subscriptionId
+        ? `abonament (mai are ${Math.max(0, leftAfter)})`
+        : g ? `${lei(g.price)}` : ''
+    await notifyTelegram(
+      `🎨 <b>Înscriere nouă</b>\n` +
+      `Copil: <b>${esc(child?.name)}</b>\n` +
+      `Grupa: ${esc(g?.name)}\n` +
+      `Lecția: ${esc(cap(fmtDay(lessonDate)))}${g ? `, ${hm(g.start_time)}–${hm(g.end_time)}` : ''}\n` +
+      `Plată: ${esc(plata)}\n` +
+      `Părinte: ${esc(child?.parent?.full_name)}, ${esc(child?.parent?.phone)}`
+    )
+  } catch {
+    // notificarea nu trebuie să strice înscrierea
+  }
+}
 
 export async function enrollInLesson(fd) {
   const groupId = String(fd.get('group_id'))
@@ -57,6 +83,9 @@ export async function enrollInLesson(fd) {
     if (error.code === 'P0001' && error.message) back(error.message)
     back('Nu am putut face înscrierea. Încearcă din nou.')
   }
+  const isTrial = pay !== 'sub' && (fd.get('is_trial') === 'on' || pay === 'trial')
+  await notifyEnrollment({ sb, childId, groupId, lessonDate, isTrial, subscriptionId, leftAfter })
+
   if (subscriptionId) {
     const msg = leftAfter <= 0
       ? 'Înscrierea a fost făcută. Ai folosit ultima lecție din abonament, reînnoiește-l mai jos.'

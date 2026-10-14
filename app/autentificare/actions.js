@@ -1,6 +1,7 @@
 'use server'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { notifyTelegram, esc } from '@/lib/telegram'
 
 export async function login(_prev, fd) {
   const sb = await createClient()
@@ -39,6 +40,12 @@ export async function register(_prev, fd) {
       : 'Nu am putut crea contul.',
       detail: error.message,
       values: { full_name: String(fd.get('full_name')), phone: String(fd.get('phone')), email: String(fd.get('email')) } }
+  }
+  // identities gol = emailul exista deja (Supabase nu dă eroare în acest caz), nu notificăm
+  if (data.user?.identities?.length !== 0) {
+    await notifyTelegram(
+      `👤 <b>Cont nou</b>\n${esc(fd.get('full_name'))}\nTelefon: ${esc(fd.get('phone'))}\nEmail: ${esc(fd.get('email'))}`
+    )
   }
   if (!data.session) {
     return { message: 'Contul a fost creat. Verifică emailul, confirmă adresa, apoi autentifică-te.' }
