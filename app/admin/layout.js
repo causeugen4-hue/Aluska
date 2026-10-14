@@ -20,6 +20,7 @@ export default async function AdminLayout({ children }) {
         <Link href="/admin/abonamente">Abonamente</Link>
         <Link href="/admin/galerie">Galerie</Link>
         <Link href="/admin/imagini">Imagini</Link>
+        <Link href="/admin/stil">Stil</Link>
         <Link href="/admin/magazin">Magazin</Link>
       </nav>
       {children}

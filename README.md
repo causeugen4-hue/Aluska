@@ -81,3 +81,9 @@ Primești un mesaj pe Telegram când cineva își face cont și când cineva se 
 5. **Mai multe persoane:** fiecare scrie `/start` botului, își află id-ul la pasul 3, iar în `TELEGRAM_CHAT_ID` pui id-urile separate prin virgulă, de exemplu `123456789,987654321`. Un id poate fi și al unui grup (începe cu `-`), dacă adaugi botul în grup.
 
 Dacă variabilele lipsesc, site-ul merge normal, doar că nu trimite notificări.
+
+## Pasul 8 (stil de sărbătoare)
+Rulează o singură dată `supabase/migration-7.sql` în Supabase → SQL Editor (după migration-6). Apoi fă deploy.
+
+**Administrare → Stil:** alegi Halloween, Crăciun, Mărțișor, Paște sau Ziua copilului (sau „Fără temă”), vezi cum arată un card și apeși „Aplică stilul”. Cardurile lecțiilor se schimbă pe tot site-ul: culori, bandă colorată sus și o emoji în colț. Culoarea marginii din stânga rămâne cea a locurilor ocupate.
+Temă nouă: o adaugi în `lib/themes.js` și îi faci un bloc `[data-theme="id"]` în `app/globals.css`.

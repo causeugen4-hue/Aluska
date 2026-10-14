@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { randomInt } from 'node:crypto'
 import { revalidatePath } from 'next/cache'
 import { today } from '@/lib/dates'
+import { THEMES, THEME_IDS } from '@/lib/themes'
 
 async function adminCtx() {
   const sb = await createClient()
@@ -256,4 +257,18 @@ export async function resetSiteImage(fd) {
   if (old?.path) await sb.storage.from('gallery').remove([old.path])
   revalidatePath('/', 'layout')
   go('/admin/imagini', 'Am revenit la imaginea inițială.')
+}
+
+// ---------- Stil de sărbătoare ----------
+export async function setTheme(fd) {
+  const sb = await adminCtx()
+  const theme = String(fd.get('theme') || '')
+  if (theme && !THEME_IDS.includes(theme)) go('/admin/stil', 'Temă necunoscută.', 'eroare')
+  const { error } = theme
+    ? await sb.from('site_settings').upsert({ key: 'theme', value: theme, updated_at: new Date().toISOString() })
+    : await sb.from('site_settings').delete().eq('key', 'theme')
+  if (error) go('/admin/stil', 'Nu am putut salva stilul.', 'eroare')
+  revalidatePath('/', 'layout')
+  const label = THEMES.find((t) => t.id === theme)?.label
+  go('/admin/stil', theme ? `Stilul „${label}” este aplicat pe cardurile lecțiilor.` : 'Am revenit la stilul obișnuit.')
 }

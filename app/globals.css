@@ -284,3 +284,44 @@ tr:last-child td { border-bottom: 0; }
 .img-prev.wide { width: 100%; max-width: 360px; aspect-ratio: 4 / 3; border-radius: 20px; }
 .hero-photo { width: min(440px, 90vw); aspect-ratio: 4 / 3; object-fit: cover; justify-self: center; border: 3px solid var(--ink); border-radius: 28px; box-shadow: 8px 8px 0 var(--ink); background: var(--white); }
 @media (max-width: 760px) { .hero-photo { order: -1; width: min(340px, 100%); } }
+
+/* Teme de sărbătoare: stilul cardurilor de lecții (alese din Administrare → Stil) */
+[data-theme="halloween"] { --t-bg: #2B1A40; --t-ink: #FFEBD2; --t-edge: #FF8A3D; --t-muted: #D8BFE8; --t-accent: #FFB066; --t-emoji: '🎃'; --t-strip: repeating-linear-gradient(135deg, #FF8A3D 0 12px, #2B1A40 12px 24px); }
+[data-theme="craciun"] { --t-bg: #F3FBF4; --t-ink: #14301F; --t-edge: #1F5A3A; --t-muted: #4B6B58; --t-accent: #C8102E; --t-emoji: '🎄'; --t-strip: repeating-linear-gradient(45deg, #C8102E 0 10px, #fff 10px 20px); }
+[data-theme="martisor"] { --t-bg: #FFF5F7; --t-ink: #4A1020; --t-edge: #C8102E; --t-muted: #8A5A64; --t-accent: #C8102E; --t-emoji: '🌸'; --t-strip: repeating-linear-gradient(-45deg, #C8102E 0 8px, #fff 8px 16px); }
+[data-theme="paste"] { --t-bg: #FFF8E1; --t-ink: #3D2B4F; --t-edge: #B58AD9; --t-muted: #7A6A8A; --t-accent: #E0559C; --t-emoji: '🐣'; --t-strip: repeating-linear-gradient(90deg, #FFD6E8 0 20px, #D9F2C9 20px 40px, #FFF1A8 40px 60px, #CFE8FF 60px 80px); }
+[data-theme="copilului"] { --t-bg: #F2F9FF; --t-ink: #1E2340; --t-edge: #3B4BDB; --t-muted: #5B6390; --t-accent: #F0488A; --t-emoji: '🎈'; --t-strip: linear-gradient(90deg, #F0488A 0 25%, #FFC83D 25% 50%, #2FBF9B 50% 75%, #3B4BDB 75% 100%); }
+
+[data-theme] .group-link, [data-theme] .group-detail {
+  position: relative; overflow: hidden; padding-top: 1.9rem;
+  background: var(--t-bg); color: var(--t-ink);
+  border-top-color: var(--t-edge); border-right-color: var(--t-edge); border-bottom-color: var(--t-edge);
+}
+[data-theme] .group-link::before, [data-theme] .group-detail::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 10px; background: var(--t-strip);
+}
+[data-theme] .group-link::after, [data-theme] .group-detail::after {
+  content: var(--t-emoji); position: absolute; top: .85rem; right: .9rem; font-size: 1.5rem; line-height: 1;
+}
+[data-theme] .group-link:hover { box-shadow: 4px 4px 0 var(--t-edge); }
+[data-theme] .group-link h3, [data-theme] .group-detail h1, [data-theme] .group-detail h2, [data-theme] .group-detail h3 { color: var(--t-ink); }
+[data-theme] .group-link .when, [data-theme] .group-detail .when, [data-theme] .group-link .go { color: var(--t-accent); }
+[data-theme] .group-link .muted, [data-theme] .group-detail .muted, [data-theme] .group-link .spots-text, [data-theme] .group-detail .spots-text { color: var(--t-muted); }
+[data-theme] .group-link .segs span, [data-theme] .group-detail .segs span { border-color: var(--t-edge); }
+[data-theme] .group-link .tag:not(.good) { border-color: var(--t-edge); color: var(--t-muted); }
+
+/* Alegerea stilului în Administrare */
+.tp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
+.tp-opt { display: grid; gap: .5rem; padding: .8rem; border: 2px solid var(--line); border-radius: 18px; background: var(--white); cursor: pointer; align-content: start; }
+.tp-opt:has(input:checked) { border-color: var(--ink); box-shadow: 4px 4px 0 var(--ink); }
+.tp-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.tp-opt input:focus-visible + .tp-name { outline: 3px solid var(--cobalt); outline-offset: 3px; border-radius: 6px; }
+.tp-name { font: 800 1.05rem var(--font-head), sans-serif; }
+.tp-opt:has(input:checked) .tp-name::after { content: ' ✓'; color: var(--mint); }
+.tp-box { pointer-events: none; }
+.tp-box .group-link:hover { transform: none; box-shadow: none; }
+
+/* „Fără temă” în previzualizare: fără stil de sărbătoare, chiar dacă pagina are unul activ */
+[data-theme="none"] { --t-bg: var(--white); --t-ink: var(--ink); --t-edge: var(--ink); --t-muted: var(--muted); --t-accent: var(--cobalt); --t-emoji: ''; }
+[data-theme="none"] .group-link { padding-top: 1.2rem; }
+[data-theme="none"] .group-link::before { display: none; }
