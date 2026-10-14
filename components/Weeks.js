@@ -11,7 +11,7 @@ function byDay(list) {
   return [...days]
 }
 
-export default function Weeks({ thisWeek, nextWeek, range, loggedIn }) {
+export default function Weeks({ thisWeek, nextWeek, range, loggedIn, themes = {} }) {
   const blocks = [
     { title: 'Săptămâna aceasta', sub: `${fmtDate(range.mon)} – ${fmtDate(range.split)}`, list: thisWeek },
     { title: 'Săptămâna viitoare', sub: `${fmtDate(range.next)} – ${fmtDate(range.end)}`, list: nextWeek },
@@ -29,7 +29,7 @@ export default function Weeks({ thisWeek, nextWeek, range, loggedIn }) {
               </p>
             )}
             {byDay(list).map(([date, items]) => (
-              <section key={date} className="day" aria-labelledby={`day-${date}`}>
+              <section key={date} className="day" data-theme={themes[date] || undefined} aria-labelledby={`day-${date}`}>
                 <h3 id={`day-${date}`} className="day-title">{cap(fmtDay(date))}</h3>
                 <div className="grid">
                   {items.map((x) => <LessonCard key={`${x.g.id}|${x.date}`} {...x} loggedIn={loggedIn} />)}

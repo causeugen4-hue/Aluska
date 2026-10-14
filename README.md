@@ -82,8 +82,8 @@ Primești un mesaj pe Telegram când cineva își face cont și când cineva se 
 
 Dacă variabilele lipsesc, site-ul merge normal, doar că nu trimite notificări.
 
-## Pasul 8 (stil de sărbătoare)
+## Pasul 8 (stil de sărbătoare, pe zile)
 Rulează o singură dată `supabase/migration-7.sql` în Supabase → SQL Editor (după migration-6). Apoi fă deploy.
 
-**Administrare → Stil:** alegi Halloween, Crăciun, Mărțișor, Paște sau Ziua copilului (sau „Fără temă”), vezi cum arată un card și apeși „Aplică stilul”. Cardurile lecțiilor se schimbă pe tot site-ul: culori, bandă colorată sus și o emoji în colț. Culoarea marginii din stânga rămâne cea a locurilor ocupate.
+**Administrare → Stil:** pentru fiecare zi cu lecții din săptămâna aceasta și cea viitoare alegi un stil (Halloween, Crăciun, Mărțișor, Paște, Ziua copilului) sau „Simplu”. Cu „Toată săptămâna” setezi toate zilele odată. Cardurile lecțiilor din zilele cu stil se schimbă (culori, bandă colorată sus, emoji în colț), iar titlul zilei primește emoji-ul. Culoarea marginii din stânga rămâne cea a locurilor ocupate.
 Temă nouă: o adaugi în `lib/themes.js` și îi faci un bloc `[data-theme="id"]` în `app/globals.css`.

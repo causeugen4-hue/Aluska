@@ -1,14 +1,15 @@
--- Alușka Art Studio, pasul 7: stilul de sărbătoare al cardurilor de lecții
+-- Alușka Art Studio, pasul 7: stil de sărbătoare ales pentru anumite zile
 -- Rulează o singură dată în Supabase > SQL Editor, DUPĂ migration-6.sql.
+-- (Dacă ai rulat deja o versiune anterioară a acestui fișier, rulează-l și pe acesta: nu strică nimic.)
 
-create table if not exists public.site_settings (
-  key text primary key,
-  value text not null default '',
-  updated_at timestamptz not null default now()
+create table if not exists public.day_themes (
+  lesson_date date primary key,
+  theme text not null,
+  created_at timestamptz not null default now()
 );
-alter table public.site_settings enable row level security;
-drop policy if exists "setări site vizibile tuturor" on public.site_settings;
-drop policy if exists "setări site gestionate de admin" on public.site_settings;
-create policy "setări site vizibile tuturor" on public.site_settings for select using (true);
-create policy "setări site gestionate de admin" on public.site_settings
+alter table public.day_themes enable row level security;
+drop policy if exists "teme zile vizibile tuturor" on public.day_themes;
+drop policy if exists "teme zile gestionate de admin" on public.day_themes;
+create policy "teme zile vizibile tuturor" on public.day_themes for select using (true);
+create policy "teme zile gestionate de admin" on public.day_themes
   for all using (public.is_admin()) with check (public.is_admin());

@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { currentUserId } from '@/lib/auth'
 import { today, lessonsWindow } from '@/lib/dates'
 import { photoUrl } from '@/lib/gallery'
-import { getSiteImages } from '@/lib/site'
+import { getSiteImages, getDayThemes } from '@/lib/site'
 import Weeks from '@/components/Weeks'
 import Carousel from '@/components/Carousel'
 
@@ -12,12 +12,13 @@ export const dynamic = 'force-dynamic'
 export default async function Home() {
   const sb = await createClient()
   const uid = await currentUserId()
-  const [{ data: groups }, { data: spots }, { data: photosRaw }, { data: cl }, imgs] = await Promise.all([
+  const [{ data: groups }, { data: spots }, { data: photosRaw }, { data: cl }, imgs, themes] = await Promise.all([
     sb.from('groups').select('*'),
     sb.rpc('group_spots'),
     sb.from('gallery_photos').select('*').order('created_at', { ascending: false }).limit(24),
     sb.from('cancelled_lessons').select('group_id,lesson_date').gte('lesson_date', today()),
     getSiteImages(),
+    getDayThemes(),
   ])
 
   const cancelled = new Set((cl || []).map((c) => `${c.group_id}|${c.lesson_date}`))
@@ -39,7 +40,7 @@ export default async function Home() {
         {gallery}
         <section id="grupe" className="wrap">
           <h1 className="page-title">Alege o lecție</h1>
-          <Weeks thisWeek={thisWeek} nextWeek={nextWeek} range={range} loggedIn />
+          <Weeks thisWeek={thisWeek} nextWeek={nextWeek} range={range} themes={themes} loggedIn />
         </section>
       </main>
     )
@@ -68,7 +69,7 @@ export default async function Home() {
       {gallery}
 
       <section id="grupe" className="wrap">
-        <Weeks thisWeek={thisWeek} nextWeek={nextWeek} range={range} />
+        <Weeks thisWeek={thisWeek} nextWeek={nextWeek} range={range} themes={themes} />
       </section>
 
       <section className="wrap">

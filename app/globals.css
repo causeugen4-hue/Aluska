@@ -310,18 +310,14 @@ tr:last-child td { border-bottom: 0; }
 [data-theme] .group-link .segs span, [data-theme] .group-detail .segs span { border-color: var(--t-edge); }
 [data-theme] .group-link .tag:not(.good) { border-color: var(--t-edge); color: var(--t-muted); }
 
-/* Alegerea stilului în Administrare */
-.tp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
-.tp-opt { display: grid; gap: .5rem; padding: .8rem; border: 2px solid var(--line); border-radius: 18px; background: var(--white); cursor: pointer; align-content: start; }
-.tp-opt:has(input:checked) { border-color: var(--ink); box-shadow: 4px 4px 0 var(--ink); }
-.tp-opt input { position: absolute; opacity: 0; pointer-events: none; }
-.tp-opt input:focus-visible + .tp-name { outline: 3px solid var(--cobalt); outline-offset: 3px; border-radius: 6px; }
-.tp-name { font: 800 1.05rem var(--font-head), sans-serif; }
-.tp-opt:has(input:checked) .tp-name::after { content: ' ✓'; color: var(--mint); }
-.tp-box { pointer-events: none; }
-.tp-box .group-link:hover { transform: none; box-shadow: none; }
+/* Stil pe zile în Administrare */
+.theme-week { max-width: 620px; }
+.theme-week-title { margin: 0; }
+.theme-all { min-width: 180px; }
+.theme-days { list-style: none; margin: .8rem 0 0; padding: 0; display: grid; gap: .6rem; }
+.theme-days label { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.theme-day-name { font-weight: 800; }
+.theme-days select { max-width: 230px; }
 
-/* „Fără temă” în previzualizare: fără stil de sărbătoare, chiar dacă pagina are unul activ */
-[data-theme="none"] { --t-bg: var(--white); --t-ink: var(--ink); --t-edge: var(--ink); --t-muted: var(--muted); --t-accent: var(--cobalt); --t-emoji: ''; }
-[data-theme="none"] .group-link { padding-top: 1.2rem; }
-[data-theme="none"] .group-link::before { display: none; }
+/* Emoji-ul sărbătorii lângă titlul zilei */
+.day[data-theme] .day-title::before { content: var(--t-emoji); font-size: 1.3rem; }

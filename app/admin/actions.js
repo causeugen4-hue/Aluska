@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { randomInt } from 'node:crypto'
 import { revalidatePath } from 'next/cache'
-import { today } from '@/lib/dates'
-import { THEMES, THEME_IDS } from '@/lib/themes'
+import { today, addDays } from '@/lib/dates'
+import { THEME_IDS } from '@/lib/themes'
 
 async function adminCtx() {
   const sb = await createClient()
@@ -259,16 +259,25 @@ export async function resetSiteImage(fd) {
   go('/admin/imagini', 'Am revenit la imaginea inițială.')
 }
 
-// ---------- Stil de sărbătoare ----------
-export async function setTheme(fd) {
+// ---------- Stil de sărbătoare, pe zile ----------
+export async function saveDayThemes(fd) {
   const sb = await adminCtx()
-  const theme = String(fd.get('theme') || '')
-  if (theme && !THEME_IDS.includes(theme)) go('/admin/stil', 'Temă necunoscută.', 'eroare')
-  const { error } = theme
-    ? await sb.from('site_settings').upsert({ key: 'theme', value: theme, updated_at: new Date().toISOString() })
-    : await sb.from('site_settings').delete().eq('key', 'theme')
-  if (error) go('/admin/stil', 'Nu am putut salva stilul.', 'eroare')
+  const set = []
+  const clear = []
+  for (const [k, v] of fd.entries()) {
+    if (!k.startsWith('theme__')) continue
+    const date = k.slice(7)
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue
+    const theme = String(v)
+    if (!theme) clear.push(date)
+    else if (THEME_IDS.includes(theme)) set.push({ lesson_date: date, theme })
+  }
+  if (set.length) {
+    const { error } = await sb.from('day_themes').upsert(set)
+    if (error) go('/admin/stil', 'Nu am putut salva stilurile.', 'eroare')
+  }
+  if (clear.length) await sb.from('day_themes').delete().in('lesson_date', clear)
+  await sb.from('day_themes').delete().lt('lesson_date', addDays(today(), -30)) // curățenie
   revalidatePath('/', 'layout')
-  const label = THEMES.find((t) => t.id === theme)?.label
-  go('/admin/stil', theme ? `Stilul „${label}” este aplicat pe cardurile lecțiilor.` : 'Am revenit la stilul obișnuit.')
+  go('/admin/stil', 'Stilurile zilelor au fost salvate.')
 }

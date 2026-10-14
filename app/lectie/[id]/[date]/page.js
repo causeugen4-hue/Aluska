@@ -7,6 +7,7 @@ import GroupMeta from '@/components/GroupMeta'
 import EnrollForm from '@/components/EnrollForm'
 import { hm, priceLabel, fmtDay, cap, isLessonDate, hasStarted, occupancyLevel } from '@/lib/dates'
 import { withUsage } from '@/lib/subscriptions'
+import { getDayThemes } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,7 +22,7 @@ export default async function Lectie({ params, searchParams }) {
   const sb = await createClient()
   const uid = await currentUserId()
 
-  const [{ data: g }, { data: spots }, { data: cl }, { data: kidsRaw }, { data: subsRaw }, { data: usage }] = await Promise.all([
+  const [{ data: g }, { data: spots }, { data: cl }, { data: kidsRaw }, { data: subsRaw }, { data: usage }, themes] = await Promise.all([
     sb.from('groups').select('*').eq('id', id).maybeSingle(),
     sb.rpc('group_spots'),
     sb.from('cancelled_lessons').select('group_id').eq('group_id', id).eq('lesson_date', date),
@@ -30,6 +31,7 @@ export default async function Lectie({ params, searchParams }) {
       : Promise.resolve({ data: [] }),
     uid ? sb.from('subscriptions').select('id,total_lessons').eq('parent_id', uid) : Promise.resolve({ data: [] }),
     uid ? sb.rpc('subscription_usage') : Promise.resolve({ data: [] }),
+    getDayThemes(),
   ])
   if (!g || !isLessonDate(g, date)) notFound()
 
@@ -56,7 +58,7 @@ export default async function Lectie({ params, searchParams }) {
   }))
 
   return (
-    <main className="wrap">
+    <main className="wrap" data-theme={themes[date] || undefined}>
       <p><Link href="/#grupe">← Toate lecțiile</Link></p>
 
       <article className={`card wide group-detail occ-${occupancyLevel(taken, g.capacity, g.is_open)}`}>
