@@ -1,6 +1,7 @@
 'use server'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
+import { createClient as createPlainClient } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/server'
 import { notifyTelegram, esc } from '@/lib/telegram'
 
@@ -67,9 +68,13 @@ export async function requestReset(_prev, fd) {
   const h = await headers()
   const host = h.get('x-forwarded-host') || h.get('host')
   const proto = h.get('x-forwarded-proto') || 'https'
-  const sb = await createClient()
+  // Flux „implicit”: linkul din email merge pe orice telefon sau browser, nu doar în cel în care s-a cerut,
+  // și nu trebuie schimbat șablonul emailului din Supabase. Datele din link le preia AuthHashRedirect.
+  const sb = createPlainClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+    auth: { flowType: 'implicit', persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  })
   const { error } = await sb.auth.resetPasswordForEmail(email, {
-    redirectTo: `${proto}://${host}/auth/confirm?next=/parola-noua`,
+    redirectTo: `${proto}://${host}/`,
   })
   if (error && (error.status === 429 || /rate limit|seconds/i.test(error.message || ''))) {
     return { error: 'Ai cerut prea des. Așteaptă câteva minute și încearcă din nou.', values: { email } }

@@ -2,6 +2,15 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
 export async function middleware(request) {
+  // Dacă Supabase a trimis linkul din email pe pagina principală (adresa de revenire nu era permisă),
+  // îl ducem noi unde trebuie.
+  const sp = request.nextUrl.searchParams
+  if (request.nextUrl.pathname === '/' && (sp.has('code') || (sp.has('token_hash') && sp.get('type') === 'recovery'))) {
+    const to = request.nextUrl.clone()
+    to.pathname = '/auth/confirm'
+    return NextResponse.redirect(to)
+  }
+
   const pending = []
 
   const supabase = createServerClient(

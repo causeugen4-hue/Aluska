@@ -89,11 +89,10 @@ Rulează o singură dată `supabase/migration-7.sql` în Supabase → SQL Editor
 Temă nouă: o adaugi în `lib/themes.js` și îi faci un bloc `[data-theme="id"]` în `app/globals.css`.
 
 ## Pasul 9 (parolă uitată)
-Pe pagina de autentificare apare „Ai uitat parola?”. Părintele scrie emailul, primește un link, alege o parolă nouă și rămâne autentificat. Nu e nevoie de migrare în Supabase, dar sunt două setări în Supabase:
+Pe pagina de autentificare apare „Ai uitat parola?”. Părintele scrie emailul, primește un link, alege o parolă nouă și rămâne autentificat. Nu e nevoie de migrare în Supabase și nici de schimbat șablonul emailului (merge cu șablonul clasic, pe orice telefon sau browser).
 
-1. **Authentication → URL Configuration:** la *Site URL* pui adresa site-ului (ex. `https://aluska-art-studio.vercel.app`), iar la *Redirect URLs* adaugi `https://ADRESA-TA/**`.
-2. **Authentication → Email Templates → Reset Password** (recomandat, ca linkul să meargă pe orice telefon sau browser): pune în text linkul
-   `<a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/parola-noua">Schimbă parola</a>`
+În Supabase → Authentication → URL Configuration:
+- **Site URL** = adresa reală a site-ului (ex. `https://aluska-art-studio.vercel.app`), nu `localhost`.
+- **Redirect URLs** = adaugă `https://ADRESA-TA/**`.
 
-Fără pasul 2 merge tot, dar doar dacă părintele deschide emailul în același browser în care a cerut resetarea.
 Dacă emailurile nu ajung la părinți, Supabase trebuie să aibă un server de email propriu (Authentication → Emails → SMTP Settings, de exemplu Resend sau Brevo): serviciul de email gratuit din Supabase trimite foarte puține mesaje și doar către membrii echipei.
