@@ -96,3 +96,8 @@ Pe pagina de autentificare apare „Ai uitat parola?”. Părintele scrie emailu
 - **Redirect URLs** = adaugă `https://ADRESA-TA/**`.
 
 Dacă emailurile nu ajung la părinți, Supabase trebuie să aibă un server de email propriu (Authentication → Emails → SMTP Settings, de exemplu Resend sau Brevo): serviciul de email gratuit din Supabase trimite foarte puține mesaje și doar către membrii echipei.
+
+## Pasul 10 (conturi și steluțe în Administrare)
+Rulează o singură dată `supabase/migration-8.sql` în Supabase → SQL Editor (după migration-7). Apoi fă deploy.
+
+**Administrare → Conturi:** lista tuturor conturilor de părinți, cu numărul de steluțe, copiii și datele de contact. Cauți după nume, telefon sau email. Apeși pe un cont, scrii câte steluțe, alegi „Adaugă” sau „Scoate” și, dacă vrei, un motiv (părintele îl vede în istoricul din magazin). Soldul nu poate ajunge sub 0.

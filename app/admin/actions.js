@@ -281,3 +281,27 @@ export async function saveDayThemes(fd) {
   revalidatePath('/', 'layout')
   go('/admin/stil', 'Stilurile zilelor au fost salvate.')
 }
+
+// ---------- Conturi și steluțe ----------
+export async function adjustStars(fd) {
+  const sb = await adminCtx()
+  const parentId = String(fd.get('parent_id') || '')
+  const q = String(fd.get('q') || '')
+  const back = (msg, type = 'ok') => {
+    const p = new URLSearchParams()
+    if (q) p.set('q', q)
+    p.set('cont', parentId)
+    p.set(type, msg)
+    redirect(`/admin/conturi?${p.toString()}`)
+  }
+  const n = Math.floor(Number(fd.get('amount')))
+  if (!(n >= 1 && n <= 1000)) back('Scrie un număr de steluțe între 1 și 1000.', 'eroare')
+  const signed = fd.get('mode') === 'remove' ? -n : n
+  const { data, error } = await sb.rpc('admin_adjust_stars', {
+    p_parent: parentId,
+    p_amount: signed,
+    p_reason: String(fd.get('reason') || '').trim().slice(0, 80),
+  })
+  if (error) back(error.code === 'P0001' && error.message ? error.message : 'Nu am putut schimba steluțele.', 'eroare')
+  back(`${signed > 0 ? 'Am adăugat' : 'Am scos'} ${n} ${n === 1 ? 'steluță' : 'steluțe'}. Acum are ${data}.`)
+}
