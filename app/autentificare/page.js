@@ -10,6 +10,7 @@ export default function Page() {
       <h1>Autentificare</h1>
       <p className="lead">Intră în cont ca să vezi sau să schimbi înscrierile copiilor.</p>
       <AuthForm mode="login" action={login} />
+      <p className="aside"><Link href="/parola-uitata">Ai uitat parola?</Link></p>
       <p className="aside">Nu ai cont? <Link href="/inregistrare">Creează cont</Link></p>
     </main>
   )
