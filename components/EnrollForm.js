@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { enrollInLesson } from '@/app/lectie/[id]/[date]/actions'
 import { lei, TRIAL_PRICE } from '@/lib/dates'
 import { lessonsWord } from '@/lib/subscriptions'
+import SubmitButton from '@/components/SubmitButton'
 
 export default function EnrollForm({ groupId, lessonDate, lessonLabel, price, kids, subRemaining = 0 }) {
   const firstFree = kids.find((k) => !k.booked)
@@ -77,7 +78,7 @@ export default function EnrollForm({ groupId, lessonDate, lessonLabel, price, ki
         )
       )}
 
-      <button className="btn">Înscrie la această lecție</button>
+      <SubmitButton pendingText="Se face înscrierea…">Înscrie la această lecție</SubmitButton>
     </form>
   )
 }

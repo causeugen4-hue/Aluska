@@ -59,17 +59,29 @@ export async function enrollInLesson(fd) {
   if (childId === 'new') {
     const name = String(fd.get('name') || '').trim()
     if (!name) back('Scrie numele copilului.')
-    const { data: child, error } = await sb.from('children').insert({
-      parent_id: user.id,
-      name,
-      birth_date: fd.get('birth_date') || null,
-      notes: String(fd.get('notes') || '').trim(),
-    }).select('id').single()
-    if (error || !child) back('Nu am putut salva copilul. Încearcă din nou.')
-    childId = child.id
+    // Dacă părintele are deja un copil cu același nume (de exemplu după o dublă apăsare), îl folosim pe acela
+    const { data: mine } = await sb.from('children').select('id,name').eq('parent_id', user.id)
+    const same = (mine || []).find((c) => c.name.trim().toLowerCase() === name.toLowerCase())
+    if (same) {
+      childId = same.id
+    } else {
+      const { data: child, error } = await sb.from('children').insert({
+        parent_id: user.id,
+        name,
+        birth_date: fd.get('birth_date') || null,
+        notes: String(fd.get('notes') || '').trim(),
+      }).select('id').single()
+      if (error || !child) back('Nu am putut salva copilul. Încearcă din nou.')
+      childId = child.id
+    }
   } else if (!childId) {
     back('Alege copilul.')
   }
+
+  // Dacă înscrierea există deja (a doua apăsare pe buton), nu o repetăm și nu scădem din nou abonamentul
+  const { data: already } = await sb.from('enrollments').select('id')
+    .eq('child_id', childId).eq('group_id', groupId).eq('lesson_date', lessonDate).maybeSingle()
+  if (already) redirect(`/cont?ok=${encodeURIComponent('Copilul este înscris la această lecție.')}`)
 
   const { error } = await sb.from('enrollments').insert({
     child_id: childId,
@@ -79,7 +91,7 @@ export async function enrollInLesson(fd) {
     subscription_id: subscriptionId,
   })
   if (error) {
-    if (error.code === '23505') back('Copilul este deja înscris la această lecție.')
+    if (error.code === '23505') redirect(`/cont?ok=${encodeURIComponent('Copilul este înscris la această lecție.')}`)
     if (error.code === 'P0001' && error.message) back(error.message)
     back('Nu am putut face înscrierea. Încearcă din nou.')
   }

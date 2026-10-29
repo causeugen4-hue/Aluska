@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { currentUserId } from '@/lib/auth'
 import ConfirmButton from '@/components/ConfirmButton'
 import RenewBox from '@/components/RenewBox'
+import SubmitButton from '@/components/SubmitButton'
 import { withUsage, lessonsWord } from '@/lib/subscriptions'
 import { addChild, deleteChild, unenroll, saveProfile, addSubscription } from './actions'
 import { enrollmentPriceLabel, age, today, fmtDay, hm, cap } from '@/lib/dates'
@@ -73,7 +74,7 @@ export default async function Cont({ searchParams }) {
       {subs.length > 0 && subLeft === 0 && <RenewBox />}
       <form action={addSubscription} className="form card sub-form">
         <label>Cod abonament<input name="code" autoComplete="off" autoCapitalize="characters" spellCheck="false" required /></label>
-        <button className="btn ghost">Adaugă abonament</button>
+        <SubmitButton className="btn ghost" pendingText="Se verifică…">Adaugă abonament</SubmitButton>
       </form>
 
       <h2>Copiii mei</h2>
@@ -136,7 +137,7 @@ export default async function Cont({ searchParams }) {
             <label>Numele copilului<input name="name" required /></label>
             <label>Data nașterii<input name="birth_date" type="date" /></label>
             <label>Observații <small>(alergii, dorințe, opțional)</small><input name="notes" /></label>
-            <button className="btn">Adaugă copilul</button>
+            <SubmitButton pendingText="Se adaugă…">Adaugă copilul</SubmitButton>
           </form>
         </>
       )}
@@ -145,7 +146,7 @@ export default async function Cont({ searchParams }) {
       <form action={saveProfile} className="form card">
         <label>Nume<input name="full_name" defaultValue={profile?.full_name || ''} required /></label>
         <label>Telefon<input name="phone" type="tel" defaultValue={profile?.phone || ''} required /></label>
-        <button className="btn ghost">Salvează datele</button>
+        <SubmitButton className="btn ghost" pendingText="Se salvează…">Salvează datele</SubmitButton>
       </form>
     </main>
   )
